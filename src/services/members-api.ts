@@ -37,3 +37,29 @@ export const pay = async (body: any) => {
         throw error;
     }
 }
+
+export const sendSingleSms = async (body: FormData) => {
+    try {
+        const response = await axios.post(`${MEMBERS_API_URL}send-sms-coupon-code-single`, body, {
+            headers: {
+                Authorization: `Bearer ${getToken()}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const sendBulkSms = async () => {
+    try {
+        const response = await axios.post(`${MEMBERS_API_URL}send-sms-coupon-code-bulk`, {}, {
+            headers: {
+                Authorization: `Bearer ${getToken()}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
