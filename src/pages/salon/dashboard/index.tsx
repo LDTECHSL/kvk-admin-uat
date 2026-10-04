@@ -342,9 +342,19 @@ export default function SalonDashboard() {
 
         {/* Today's Appointments */}
         <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
-          <div className="mb-3 flex items-center gap-2">
-            <CalendarCheck size={16} className="text-blue-700" />
-            <h3 className="text-sm font-semibold text-gray-900">Today's Appointments</h3>
+          <div className="mb-4 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
+                <CalendarCheck size={16} />
+              </div>
+              <h3 className="text-sm font-semibold text-gray-900">Today's Appointments</h3>
+            </div>
+
+            {appointments.length > 0 && (
+              <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-600">
+                {appointments.length}
+              </span>
+            )}
           </div>
 
           {isLoadingAppointments ? (
@@ -357,47 +367,83 @@ export default function SalonDashboard() {
               {appointmentsError}
             </div>
           ) : appointments.length === 0 ? (
-            <p className="py-6 text-center text-sm text-gray-500">
-              No appointments scheduled for today.
-            </p>
+            <div className="flex flex-col items-center gap-2 py-10 text-center">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-50 text-gray-300">
+                <CalendarCheck size={20} />
+              </div>
+              <p className="text-sm text-gray-500">No appointments scheduled for today.</p>
+            </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="space-y-2.5">
               {appointments.map((appointment) => {
                 const tagStyle = TAG_STYLES[appointment.tag];
+                const isEnded = appointment.tag === "ended";
+                const initials = appointment.customerName
+                  .trim()
+                  .split(/\s+/)
+                  .map((part) => part.charAt(0))
+                  .slice(0, 2)
+                  .join("")
+                  .toUpperCase() || "?";
 
                 return (
                   <div
                     key={appointment.id}
-                    className="flex flex-wrap items-center justify-between gap-3 py-3 transition-colors duration-200 hover:bg-gray-50/80"
+                    className={`group relative flex items-center gap-3 overflow-hidden rounded-xl border border-gray-100 bg-white py-3 pl-4 pr-3.5 transition-all duration-200 hover:border-blue-200 hover:shadow-sm sm:gap-4 ${
+                      isEnded ? "opacity-60" : ""
+                    }`}
                   >
-                    <div className="min-w-[110px] text-sm font-medium text-gray-900">
-                      {formatTime(appointment.startTime)} - {formatTime(appointment.endTime)}
+                    <span
+                      className={`absolute inset-y-2 left-0 w-1 rounded-r-full ${tagStyle.dot}`}
+                    />
+
+                    <div
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${tagStyle.classes}`}
+                    >
+                      {initials}
+                    </div>
+
+                    <div className="w-[88px] shrink-0">
+                      <p className="text-sm font-semibold text-gray-900">
+                        {formatTime(appointment.startTime)}
+                      </p>
+                      <p className="text-[11px] text-gray-400">
+                        to {formatTime(appointment.endTime)}
+                      </p>
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-gray-900">
+                      <p className="truncate text-sm font-semibold text-gray-900">
                         {appointment.customerName}
-                      </div>
-                      <div className="truncate text-xs text-gray-500">
+                      </p>
+                      <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-gray-500">
+                        <Armchair size={12} className="shrink-0 text-gray-400" />
                         {appointment.seatName}
-                        {appointment.services ? ` · ${appointment.services}` : ""}
-                      </div>
+                        {appointment.services && (
+                          <>
+                            <Scissors size={12} className="ml-1 shrink-0 text-gray-400" />
+                            <span className="truncate">{appointment.services}</span>
+                          </>
+                        )}
+                      </p>
                     </div>
 
-                    <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                      {bookingStatusLabel(appointment.status)}
-                    </span>
+                    <div className="hidden shrink-0 items-center gap-2 sm:flex">
+                      <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                        {bookingStatusLabel(appointment.status)}
+                      </span>
 
-                    <span
-                      className={`flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${tagStyle.classes}`}
-                    >
                       <span
-                        className={`h-1.5 w-1.5 rounded-full ${tagStyle.dot} ${
-                          appointment.tag === "now" ? "animate-pulse" : ""
-                        }`}
-                      />
-                      {tagStyle.label}
-                    </span>
+                        className={`flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${tagStyle.classes}`}
+                      >
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${tagStyle.dot} ${
+                            appointment.tag === "now" ? "animate-pulse" : ""
+                          }`}
+                        />
+                        {tagStyle.label}
+                      </span>
+                    </div>
                   </div>
                 );
               })}

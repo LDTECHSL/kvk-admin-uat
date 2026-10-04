@@ -57,3 +57,17 @@ export const deleteSalonService = async (id: string) => {
     const response = await axios.delete(`${API_URL}saloon/service-items/${id}`, authHeaders());
     return response.data;
 };
+
+export const getSalonBusinessHours = async () => {
+    const response = await axios.get(`${API_URL}saloon/business-hours`, authHeaders());
+    return response.data;
+};
+
+export const updateSalonBusinessHours = async (data: {
+    openTime: string;
+    closeTime: string;
+    slotIntervalMinutes: number;
+}) => {
+    const response = await axios.put(`${API_URL}saloon/business-hours`, data, authHeaders());
+    return response.data;
+};

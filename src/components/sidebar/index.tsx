@@ -235,6 +235,13 @@ const salonNavItems: NavItem[] = [
     icon: Scissors,
     path: "/salon/services",
     submenu: null,
+  },
+  {
+    id: "salon-settings",
+    label: "Settings",
+    icon: Settings,
+    path: "/salon/settings",
+    submenu: null,
   }
 ];
 
