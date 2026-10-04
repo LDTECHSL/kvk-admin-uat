@@ -289,57 +289,6 @@ export default function SalonDashboard() {
           />
         </div>
 
-        {/* Upcoming Seat Availability */}
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
-          <div className="mb-3 flex items-center gap-2">
-            <CalendarClock size={16} className="text-blue-700" />
-            <h3 className="text-sm font-semibold text-gray-900">
-              Upcoming Seat Availability
-            </h3>
-          </div>
-
-          {data.upcomingSeatAvailability.length === 0 ? (
-            <p className="py-6 text-center text-sm text-gray-500">
-              No more seat availability to show for today.
-            </p>
-          ) : (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              {data.upcomingSeatAvailability.map((slot, index) => {
-                const isFullyBooked = slot.freeSeats === 0;
-                const isLow =
-                  !isFullyBooked && slot.totalSeats > 0 && slot.freeSeats / slot.totalSeats <= 0.3;
-
-                return (
-                  <div
-                    key={index}
-                    className={`rounded-lg border px-3 py-3 text-center transition-all duration-300 hover:-translate-y-0.5 ${
-                      isFullyBooked
-                        ? "border-red-200 bg-red-50"
-                        : isLow
-                          ? "border-amber-200 bg-amber-50"
-                          : "border-emerald-200 bg-emerald-50"
-                    }`}
-                  >
-                    <p className="text-xs font-medium text-gray-600">{slot.hourLabel}</p>
-                    <p
-                      className={`mt-1 text-xl font-bold ${
-                        isFullyBooked
-                          ? "text-red-700"
-                          : isLow
-                            ? "text-amber-700"
-                            : "text-emerald-700"
-                      }`}
-                    >
-                      {slot.freeSeats}/{slot.totalSeats}
-                    </p>
-                    <p className="text-[11px] text-gray-500">seats free</p>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
         {/* Today's Appointments */}
         <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
           <div className="mb-4 flex items-center justify-between gap-2">
