@@ -1,13 +1,44 @@
 import { useEffect, useState } from "react";
-import {
-  Download,
-  Search,
-} from "lucide-react";
+import { Download, Search } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { getPayments } from "@/services/payments-api";
+import { getCarWashPayments } from "@/services/car-wash-api";
 
-export default function GymPayments() {
+const paymentMethodLabel = (method: number) => {
+  switch (method) {
+    case 1:
+      return "Cash";
+    case 2:
+      return "Card";
+    case 3:
+      return "Bank Transfer";
+    case 4:
+      return "Online";
+    default:
+      return "Unknown";
+  }
+};
+
+const vehicleTypeLabel = (type: number) => {
+  switch (type) {
+    case 1:
+      return "Car";
+    case 2:
+      return "Truck";
+    case 3:
+      return "Van";
+    case 4:
+      return "Jeep";
+    case 5:
+      return "Lorry";
+    case 6:
+      return "Bike";
+    default:
+      return "Unknown";
+  }
+};
+
+export default function CarWashPayments() {
   const today = new Date();
   const defaultDate = today.toISOString().split("T")[0];
 
@@ -16,88 +47,47 @@ export default function GymPayments() {
   const [selectedDate, setSelectedDate] = useState(defaultDate);
   const [searchTerm, setSearchTerm] = useState("");
   const [payments, setPayments] = useState<any[]>([]);
-  const [isLoadingPayments, setIsLoadingPayments] = useState(false);
-  const [paymentsError, setPaymentsError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const exportPdf = () => {
-    const doc = new jsPDF();
-
-    doc.setFontSize(18);
-    doc.text("Payment Report", 14, 20);
-
-    doc.setFontSize(10);
-    doc.text(`Date: ${selectedDate}`, 14, 28);
-
-    autoTable(doc, {
-      startY: 45,
-      head: [["Member", "Membership No", "Amount", "Date", "Method"]],
-      body: filteredPayments.map((payment) => [
-        payment.member,
-        payment.membershipNumber,
-        formatLkr(payment.amount),
-        payment.date?.slice(0, 10),
-        payment.method,
-      ]),
-      styles: {
-        fontSize: 9,
-      },
-      headStyles: {
-        fillColor: [41, 107, 225],
-      },
-    });
-
-    doc.save(`payments-${selectedDate}.pdf`);
-  };
+  const formatLkr = (amount: number) =>
+    `LKR ${amount.toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   useEffect(() => {
     loadPayments();
   }, [selectedDate]);
 
   const loadPayments = async () => {
-    setIsLoadingPayments(true);
-    setPaymentsError("");
-
-    const from = selectedDate;
-    const to = selectedDate; // or next day if needed
+    setIsLoading(true);
+    setError("");
 
     try {
-      const response = await getPayments(from, to);
+      const response = await getCarWashPayments(selectedDate, selectedDate);
 
       const rows =
-        response?.additionalData?.response ??
-        response?.response ??
-        response ??
-        [];
+        response?.additionalData?.response ?? response?.response ?? response ?? [];
 
-      const mappedPayments = Array.isArray(rows)
-        ? rows.map((payment: any) => ({
-          id: payment.id,
-          member: `${payment.memberFirstName ?? ""} ${payment.memberLastName ?? ""
-            }`.trim(),
-          memberFirstName: payment.memberFirstName ?? "",
-          memberLastName: payment.memberLastName ?? "",
-          membershipNumber: payment.membershipNumber ?? "",
-          membershipPlanTitle: payment.membershipPlanTitle ?? "",
-          amount: Number(payment.amount ?? 0),
-          date: payment.createdAt ?? payment.startDate,
-          method:
-            payment.paymentType === 1
-              ? "Cash"
-              : payment.paymentType === 2
-                ? "Card"
-                : payment.paymentType === 3
-                  ? "Online"
-                  : "Unknown",
-          paymentStatus: payment.paymentStatus,
-        }))
+      const mapped = Array.isArray(rows)
+        ? rows
+            .filter((order: any) => order.isPaid)
+            .map((order: any) => ({
+              id: order.carWashOrderId,
+              orderNumber: order.orderNumber ?? "",
+              customerName: order.customerName || "Walk-in",
+              vehicleNumber: order.vehicleNumber || "-",
+              vehicleType: vehicleTypeLabel(order.vehicleType),
+              amount: Number(order.discountedTotalAmount ?? 0),
+              date: order.orderDate,
+              method: paymentMethodLabel(order.paymentMethod),
+            }))
         : [];
 
-      setPayments(mappedPayments);
+      setPayments(mapped);
     } catch {
       setPayments([]);
-      setPaymentsError("Failed to load payments for the selected date.");
+      setError("Failed to load payments for the selected date.");
     } finally {
-      setIsLoadingPayments(false);
+      setIsLoading(false);
     }
   };
 
@@ -109,12 +99,7 @@ export default function GymPayments() {
   const filteredPayments = payments.filter((payment) => {
     if (!normalizedSearchTerm) return true;
 
-    return [
-      payment.member,
-      payment.amount.toLocaleString(),
-      payment.method,
-      payment.date,
-    ]
+    return [payment.customerName, payment.vehicleNumber, payment.orderNumber, payment.method]
       .join(" ")
       .toLowerCase()
       .includes(normalizedSearchTerm);
@@ -124,24 +109,48 @@ export default function GymPayments() {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const start = (page - 1) * pageSize;
   const pageItems = filteredPayments.slice(start, start + pageSize);
-  const formatLkr = (amount: number) =>
-    `LKR ${amount.toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  const exportPdf = () => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text("Car Wash Payment Report", 14, 20);
+
+    doc.setFontSize(10);
+    doc.text(`Date: ${selectedDate}`, 14, 28);
+
+    autoTable(doc, {
+      startY: 45,
+      head: [["Order No", "Customer", "Vehicle", "Amount", "Method"]],
+      body: filteredPayments.map((payment) => [
+        payment.orderNumber,
+        payment.customerName,
+        payment.vehicleNumber,
+        formatLkr(payment.amount),
+        payment.method,
+      ]),
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [41, 107, 225] },
+    });
+
+    doc.save(`car-wash-payments-${selectedDate}.pdf`);
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       <div className="space-y-4">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
                 Payments
               </h1>
               <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-100">
-                Gym
+                Car Wash
               </span>
             </div>
             <p className="text-sm text-gray-500 mt-1">
-              Search, review and manage payment records
+              Search, review and export car wash payment records
             </p>
           </div>
 
@@ -152,7 +161,7 @@ export default function GymPayments() {
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 className="w-full outline-none text-sm"
-                placeholder="Search by member, amount, method, or date..."
+                placeholder="Search by customer, vehicle, order no, or method..."
               />
             </div>
           </div>
@@ -160,7 +169,7 @@ export default function GymPayments() {
           <div className="flex items-center gap-3">
             <button
               onClick={exportPdf}
-              className="flex items-center gap-2 px-3 py-2.5 bg-primary text-white rounded cursor-pointer bg-blue-700 transition-all duration-300 text-sm hover:-translate-y-0.5 hover:shadow-lg hover:bg-blue-800"
+              className="flex items-center gap-2 px-3 py-2.5 bg-blue-700 text-white rounded cursor-pointer transition-all duration-300 text-sm hover:-translate-y-0.5 hover:shadow-lg hover:bg-blue-800"
             >
               <Download size={14} />
               Export PDF
@@ -175,20 +184,18 @@ export default function GymPayments() {
               <span className="font-medium text-gray-900">{selectedDate}</span>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <label className="flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-gray-300">
-                <span className="text-gray-500">Date</span>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(event) => {
-                    setSelectedDate(event.target.value);
-                    setPage(1);
-                  }}
-                  className="outline-none text-sm text-gray-900"
-                />
-              </label>
-            </div>
+            <label className="flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-gray-300">
+              <span className="text-gray-500">Date</span>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(event) => {
+                  setSelectedDate(event.target.value);
+                  setPage(1);
+                }}
+                className="outline-none text-sm text-gray-900"
+              />
+            </label>
           </div>
 
           <div className="px-4 py-3">
@@ -196,29 +203,30 @@ export default function GymPayments() {
               <table className="w-full table-auto text-sm">
                 <thead>
                   <tr className="text-left text-xs text-gray-600 border-b border-gray-100">
-                    <th className="py-2 px-3">MEMBER</th>
+                    <th className="py-2 px-3">ORDER NO</th>
+                    <th className="py-2 px-3">CUSTOMER</th>
+                    <th className="py-2 px-3">VEHICLE</th>
                     <th className="py-2 px-3">AMOUNT</th>
-                    <th className="py-2 px-3">DATE</th>
                     <th className="py-2 px-3">METHOD</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {isLoadingPayments ? (
+                  {isLoading ? (
                     <tr>
-                      <td
-                        colSpan={4}
-                        className="py-8 text-center text-sm text-gray-500"
-                      >
+                      <td colSpan={5} className="py-8 text-center text-sm text-gray-500">
                         Loading payments...
                       </td>
                     </tr>
-                  ) : paymentsError ? (
+                  ) : error ? (
                     <tr>
-                      <td
-                        colSpan={4}
-                        className="py-8 text-center text-sm text-red-600"
-                      >
-                        {paymentsError}
+                      <td colSpan={5} className="py-8 text-center text-sm text-red-600">
+                        {error}
+                      </td>
+                    </tr>
+                  ) : pageItems.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-8 text-center text-sm text-gray-500">
+                        No payments found for this date.
                       </td>
                     </tr>
                   ) : (
@@ -227,28 +235,22 @@ export default function GymPayments() {
                         key={payment.id}
                         className="border-b border-gray-100 transition-colors duration-300 hover:bg-gray-50/80"
                       >
+                        <td className="py-2 px-3 align-top text-gray-700">
+                          {payment.orderNumber}
+                        </td>
                         <td className="py-2 px-3 align-top">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-900 flex items-center justify-center text-sm font-semibold">
-                              {payment.memberFirstName?.charAt(0)}
-                            </div>
-
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {payment.member}
-                              </div>
-
-                              <div className="text-xs text-gray-500">
-                                {payment.membershipNumber}
-                              </div>
-                            </div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {payment.customerName}
                           </div>
+                        </td>
+                        <td className="py-2 px-3 align-top text-gray-700">
+                          {payment.vehicleNumber}
+                          <span className="ml-1 text-xs text-gray-400">
+                            ({payment.vehicleType})
+                          </span>
                         </td>
                         <td className="py-2 px-3 align-top font-medium text-gray-900">
                           {formatLkr(payment.amount)}
-                        </td>
-                        <td className="py-2 px-3 align-top text-gray-700">
-                          {payment.date.slice(0, 10)}
                         </td>
                         <td className="py-2 px-3 align-top">
                           <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs">
@@ -296,7 +298,7 @@ export default function GymPayments() {
                   <button
                     key={index}
                     onClick={() => setPage(index + 1)}
-                    className={`px-2 py-1 text-sm rounded-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sm ${page === index + 1 ? "bg-gray-900 text-white" : "bg-white border hover:bg-gray-50"}`}
+                    className={`cursor-pointer px-2 py-1 text-sm rounded-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sm ${page === index + 1 ? "bg-gray-900 text-white" : "bg-white border hover:bg-gray-50"}`}
                   >
                     {index + 1}
                   </button>

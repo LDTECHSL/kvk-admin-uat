@@ -1,69 +1,561 @@
-import { Clock3, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import {
+  Users,
+  LayoutGrid,
+  Wallet,
+  Crown,
+  TrendingUp,
+  LineChart as LineChartIcon,
+  PieChart as PieChartIcon,
+  CalendarDays,
+  Loader2,
+  Store,
+  X,
+  ExternalLink,
+  Dumbbell,
+  Car,
+  Coffee,
+  Trophy,
+  Gamepad2,
+  Scissors,
+} from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { getEnv } from "@/env";
+import { getGymDashboard } from "@/services/gym-dashboard-api";
+import { getCarWashDashboard } from "@/services/car-wash-api";
+import { getCafeDashboard } from "@/services/cafe-api";
+import { getBadmintonDashboard } from "@/services/badminton-api";
+import { getGamingDashboard } from "@/services/gaming-api";
+import { getSalonDashboard } from "@/services/salon-api";
+import { getStaffMembers } from "@/services/staff-api";
+import { getHolidays } from "@/services/holidays-api";
+
+type ModuleKey = "gym" | "carWash" | "cafe" | "badminton" | "gaming" | "salon";
+
+type RevenuePoint = { month: string; revenue: number };
+
+type ModuleData = {
+  todaysRevenue: number;
+  monthlyRevenue: RevenuePoint[];
+};
+
+const MODULE_META: Record<ModuleKey, { label: string; color: string; icon: React.ComponentType<{ size?: number; className?: string }> }> = {
+  gym: { label: "Gym", color: "#2563eb", icon: Dumbbell },
+  carWash: { label: "Car Wash", color: "#f59e0b", icon: Car },
+  cafe: { label: "Cafe", color: "#f97316", icon: Coffee },
+  badminton: { label: "Badminton", color: "#8b5cf6", icon: Trophy },
+  gaming: { label: "Gaming", color: "#10b981", icon: Gamepad2 },
+  salon: { label: "Salon", color: "#ec4899", icon: Scissors },
+};
+
+const MODULE_ORDER: ModuleKey[] = ["gym", "carWash", "cafe", "badminton", "gaming", "salon"];
+
+const emptyModuleData: ModuleData = { todaysRevenue: 0, monthlyRevenue: [] };
+
+const unwrap = (response: any) =>
+  response?.additionalData?.response ?? response?.response ?? response ?? null;
+
+const formatLkr = (amount: number) =>
+  `LKR ${amount.toLocaleString("en-LK", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  })}`;
+
+type Holiday = {
+  id: string;
+  date: Date;
+  description: string;
+};
+
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  gradient,
+}: {
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  label: string;
+  value: string | number;
+  sub?: string;
+  gradient: string;
+}) {
+  return (
+    <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-gray-300">
+      <div
+        className={`absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-10 transition-transform duration-500 group-hover:scale-125 ${gradient}`}
+      />
+      <div className="relative flex items-start justify-between">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            {label}
+          </p>
+          <p className="mt-2 truncate text-2xl font-bold text-gray-900">{value}</p>
+          {sub && <p className="mt-0.5 truncate text-xs text-gray-400">{sub}</p>}
+        </div>
+        <div
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm ${gradient}`}
+        >
+          <Icon size={20} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Dashboard() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [staffCount, setStaffCount] = useState(0);
+  const [moduleData, setModuleData] = useState<Record<ModuleKey, ModuleData>>({
+    gym: emptyModuleData,
+    carWash: emptyModuleData,
+    cafe: emptyModuleData,
+    badminton: emptyModuleData,
+    gaming: emptyModuleData,
+    salon: emptyModuleData,
+  });
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
+  const [isCashierModalOpen, setIsCashierModalOpen] = useState(false);
+
+  useEffect(() => {
+    loadAll();
+  }, []);
+
+  const loadAll = async () => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const [gym, carWash, cafe, badminton, gaming, salon, staff, holidaysThisYear, holidaysNextYear] =
+        await Promise.allSettled([
+          getGymDashboard(),
+          getCarWashDashboard(),
+          getCafeDashboard(),
+          getBadmintonDashboard(),
+          getGamingDashboard(),
+          getSalonDashboard(),
+          getStaffMembers(),
+          getHolidays(new Date().getFullYear()),
+          getHolidays(new Date().getFullYear() + 1),
+        ]);
+
+      const extractModule = (settled: PromiseSettledResult<any>): ModuleData => {
+        if (settled.status !== "fulfilled") return emptyModuleData;
+        const payload = unwrap(settled.value);
+        if (!payload) return emptyModuleData;
+        return {
+          todaysRevenue: Number(payload.todaysRevenue ?? 0),
+          monthlyRevenue: Array.isArray(payload.monthlyRevenue) ? payload.monthlyRevenue : [],
+        };
+      };
+
+      setModuleData({
+        gym: extractModule(gym),
+        carWash: extractModule(carWash),
+        cafe: extractModule(cafe),
+        badminton: extractModule(badminton),
+        gaming: extractModule(gaming),
+        salon: extractModule(salon),
+      });
+
+      if (staff.status === "fulfilled") {
+        const staffRows = Array.isArray(staff.value)
+          ? staff.value
+          : Array.isArray(staff.value?.response)
+            ? staff.value.response
+            : [];
+        setStaffCount(staffRows.length);
+      } else {
+        setStaffCount(0);
+      }
+
+      const holidayRows: any[] = [];
+      for (const settled of [holidaysThisYear, holidaysNextYear]) {
+        if (settled.status === "fulfilled" && Array.isArray(settled.value)) {
+          holidayRows.push(...settled.value);
+        } else if (settled.status === "fulfilled" && Array.isArray(settled.value?.response)) {
+          holidayRows.push(...settled.value.response);
+        }
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const parsedHolidays: Holiday[] = holidayRows
+        .map((h: any) => {
+          const date = new Date(`${h.year}-${h.month}-${h.day}T00:00:00`);
+          return {
+            id: h.id ?? `${h.year}-${h.month}-${h.day}`,
+            date,
+            description: h.description || "Holiday",
+          };
+        })
+        .filter((h) => !Number.isNaN(h.date.getTime()) && h.date >= today)
+        .sort((a, b) => a.date.getTime() - b.date.getTime())
+        .slice(0, 7);
+
+      setHolidays(parsedHolidays);
+    } catch {
+      setError("Failed to load dashboard.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const todaysRevenueTotal = MODULE_ORDER.reduce(
+    (sum, key) => sum + moduleData[key].todaysRevenue,
+    0,
+  );
+
+  const highestRevenueModule = MODULE_ORDER.reduce<ModuleKey>((highest, key) =>
+    moduleData[key].todaysRevenue > moduleData[highest].todaysRevenue ? key : highest,
+    "gym",
+  );
+
+  const monthCount = Math.max(...MODULE_ORDER.map((key) => moduleData[key].monthlyRevenue.length), 0);
+  const combinedMonthlyRevenue: RevenuePoint[] = Array.from({ length: monthCount }).map((_, index) => {
+    let label = "";
+    let total = 0;
+    for (const key of MODULE_ORDER) {
+      const point = moduleData[key].monthlyRevenue[index];
+      if (point) {
+        total += Number(point.revenue ?? 0);
+        label = point.month;
+      }
+    }
+    return { month: label, revenue: total };
+  });
+
+  const pieData = MODULE_ORDER.map((key) => {
+    const arr = moduleData[key].monthlyRevenue;
+    const thisMonth = arr.length > 0 ? Number(arr[arr.length - 1].revenue ?? 0) : 0;
+    return { key, name: MODULE_META[key].label, value: thisMonth, color: MODULE_META[key].color };
+  });
+  const pieTotal = pieData.reduce((sum, p) => sum + p.value, 0);
+
+  const { CASHIER_LINKS } = getEnv();
+
+  const openCashierLink = (key: ModuleKey) => {
+    const url = (CASHIER_LINKS as any)?.[key];
+    if (url) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 size={28} className="animate-spin text-blue-700" />
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6">
-      <div className="flex min-h-[calc(100vh-120px)] py-12 items-center justify-center rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-blue-50 shadow-sm">
-        <div className="mx-auto max-w-xl text-center">
-
-          {/* Badge */}
-          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-blue-900 bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700">
-            <Sparkles size={16} />
-            Dashboard Coming Soon
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="space-y-6">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+              KVK Arena Dashboard
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Overview across all business modules
+            </p>
           </div>
 
-          {/* Title */}
-          <h1 className="mt-6 text-4xl font-bold tracking-tight text-slate-900">
-            Under Construction
-          </h1>
+          <button
+            type="button"
+            onClick={() => setIsCashierModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-blue-700 to-blue-900 text-white rounded-lg cursor-pointer transition-all duration-300 text-sm font-medium shadow-sm hover:-translate-y-0.5 hover:shadow-lg"
+          >
+            <Store size={16} />
+            Cashiers
+          </button>
+        </div>
 
-          {/* Description */}
-          <p className="mt-4 text-base leading-7 text-slate-600">
-            We're building a modern analytics dashboard with real-time
-            statistics, business insights, financial summaries, bookings,
-            revenue reports, and system monitoring.
-          </p>
+        {error && (
+          <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            {error}
+          </div>
+        )}
 
-          {/* Features Preview */}
-          <div className="mt-10 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="text-3xl font-bold text-blue-900">📊</div>
-              <h3 className="mt-3 font-semibold text-slate-900">
-                Analytics
+        {/* Stat Cards */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard icon={Users} label="Staff" value={staffCount} gradient="bg-blue-600" />
+          <StatCard
+            icon={LayoutGrid}
+            label="Modules"
+            value={MODULE_ORDER.length}
+            gradient="bg-violet-600"
+          />
+          <StatCard
+            icon={Wallet}
+            label="Full Revenue (Today)"
+            value={formatLkr(todaysRevenueTotal)}
+            gradient="bg-emerald-600"
+          />
+          <StatCard
+            icon={Crown}
+            label="Highest Revenue Module"
+            value={MODULE_META[highestRevenueModule].label}
+            sub={formatLkr(moduleData[highestRevenueModule].todaysRevenue)}
+            gradient="bg-amber-500"
+          />
+        </div>
+
+        {/* Charts: Bar + Line (combined monthly revenue) */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
+            <div className="mb-2 flex items-center gap-2">
+              <TrendingUp size={16} className="text-blue-700" />
+              <h3 className="text-sm font-semibold text-gray-900">
+                Monthly Revenue Comparison (All Modules)
               </h3>
-              <p className="mt-2 text-sm text-slate-500">
-                Revenue & booking insights
-              </p>
             </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="text-3xl font-bold text-blue-900">⚡</div>
-              <h3 className="mt-3 font-semibold text-slate-900">
-                Live Status
-              </h3>
-              <p className="mt-2 text-sm text-slate-500">
-                Real-time system monitoring
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="text-3xl font-bold text-blue-900">📈</div>
-              <h3 className="mt-3 font-semibold text-slate-900">
-                Reports
-              </h3>
-              <p className="mt-2 text-sm text-slate-500">
-                Daily & monthly performance
-              </p>
-            </div>
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={combinedMonthlyRevenue} margin={{ left: 8, right: 8 }}>
+                <defs>
+                  <linearGradient id="mainBarGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#2563eb" stopOpacity={0.95} />
+                    <stop offset="100%" stopColor="#60a5fa" stopOpacity={0.6} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 12, fill: "#6b7280" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 12, fill: "#6b7280" }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(value) => `${Math.round(Number(value) / 1000)}k`}
+                />
+                <Tooltip
+                  cursor={{ fill: "rgba(37,99,235,0.06)" }}
+                  formatter={(value) => [formatLkr(Number(value)), "Revenue"] as [string, string]}
+                  contentStyle={{ borderRadius: 10, border: "1px solid #e5e7eb", fontSize: 13 }}
+                />
+                <Bar
+                  dataKey="revenue"
+                  fill="url(#mainBarGradient)"
+                  radius={[8, 8, 0, 0]}
+                  animationDuration={1200}
+                  animationEasing="ease-out"
+                  maxBarSize={56}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
 
-          {/* Footer */}
-          <div className="mt-10 inline-flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700">
-            <Clock3 size={18} />
-            This module will be available in a future update.
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
+            <div className="mb-2 flex items-center gap-2">
+              <LineChartIcon size={16} className="text-emerald-700" />
+              <h3 className="text-sm font-semibold text-gray-900">
+                Monthly Revenue Trend (All Modules)
+              </h3>
+            </div>
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={combinedMonthlyRevenue} margin={{ left: 8, right: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 12, fill: "#6b7280" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 12, fill: "#6b7280" }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(value) => `${Math.round(Number(value) / 1000)}k`}
+                />
+                <Tooltip
+                  formatter={(value) => [formatLkr(Number(value)), "Revenue"] as [string, string]}
+                  contentStyle={{ borderRadius: 10, border: "1px solid #e5e7eb", fontSize: 13 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#10b981"
+                  strokeWidth={2.5}
+                  dot={{ r: 3, fill: "#10b981", strokeWidth: 0 }}
+                  activeDot={{ r: 6 }}
+                  animationDuration={1300}
+                  animationEasing="ease-out"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Holidays + Pie chart */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
+            <div className="mb-3 flex items-center gap-2">
+              <CalendarDays size={16} className="text-blue-700" />
+              <h3 className="text-sm font-semibold text-gray-900">Upcoming Holidays</h3>
+            </div>
+
+            {holidays.length === 0 ? (
+              <p className="py-6 text-center text-sm text-gray-500">
+                No upcoming holidays found.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {holidays.map((holiday) => (
+                  <div
+                    key={holiday.id}
+                    className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-50/60"
+                  >
+                    <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-lg bg-blue-700 text-white">
+                      <span className="text-[10px] font-semibold uppercase leading-none">
+                        {holiday.date.toLocaleDateString("en-US", { month: "short" })}
+                      </span>
+                      <span className="text-base font-bold leading-none">
+                        {holiday.date.getDate()}
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-gray-900">
+                        {holiday.description}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {holiday.date.toLocaleDateString("en-US", {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
+            <div className="mb-2 flex items-center gap-2">
+              <PieChartIcon size={16} className="text-violet-700" />
+              <h3 className="text-sm font-semibold text-gray-900">
+                Module-wise Revenue (This Month)
+              </h3>
+            </div>
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={60}
+                  outerRadius={95}
+                  paddingAngle={pieTotal > 0 ? 3 : 0}
+                  animationDuration={1200}
+                  animationEasing="ease-out"
+                  stroke="none"
+                >
+                  {pieData.map((entry) => (
+                    <Cell key={entry.key} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value) => [formatLkr(Number(value)), "Revenue"] as [string, string]}
+                  contentStyle={{ borderRadius: 10, border: "1px solid #e5e7eb", fontSize: 13 }}
+                />
+                <Legend
+                  verticalAlign="bottom"
+                  height={36}
+                  iconType="circle"
+                  wrapperStyle={{ fontSize: 12, color: "#4b5563" }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            {pieTotal === 0 && (
+              <p className="mt-1 text-center text-xs text-gray-400">No revenue recorded yet this month</p>
+            )}
           </div>
         </div>
       </div>
+
+      {isCashierModalOpen &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/60 px-4 py-6 backdrop-blur-sm"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) setIsCashierModalOpen(false);
+            }}
+          >
+            <div className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl">
+              <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">Cashier Systems</h2>
+                  <p className="text-sm text-gray-500">
+                    Open a module's cashier system in a new tab.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsCashierModalOpen(false)}
+                  className="cursor-pointer rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 p-6 sm:grid-cols-3">
+                {MODULE_ORDER.map((key) => {
+                  const meta = MODULE_META[key];
+                  const Icon = meta.icon;
+                  const hasLink = Boolean((CASHIER_LINKS as any)?.[key]);
+
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => openCashierLink(key)}
+                      disabled={!hasLink}
+                      title={hasLink ? `Open ${meta.label} cashier` : "Link not configured"}
+                      className="group flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-gray-200 bg-white p-4 text-center transition-all duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                    >
+                      <div
+                        className="flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-sm transition-transform duration-300 group-hover:scale-110"
+                        style={{ backgroundColor: meta.color }}
+                      >
+                        <Icon size={22} />
+                      </div>
+                      <span className="text-sm font-medium text-gray-900">{meta.label}</span>
+                      <span className="flex items-center gap-1 text-[11px] text-gray-400">
+                        <ExternalLink size={10} />
+                        {hasLink ? "Open" : "Not configured"}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

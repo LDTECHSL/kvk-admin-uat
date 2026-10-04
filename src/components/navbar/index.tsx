@@ -80,7 +80,7 @@ export default function Navbar({
         <div className="flex items-center gap-2 sm:gap-3 ml-auto shrink-0">
           <button
           onClick={() => {
-            navigate("/settings")
+            navigate("/main/settings")
           }}
            className="hidden cursor-pointer sm:flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors" aria-label="Settings">
             <Settings size={18} />

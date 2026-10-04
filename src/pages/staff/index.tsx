@@ -10,7 +10,7 @@ import {
   RefreshCcw,
   Search,
   ShieldCheck,
-  Store,
+  Scissors,
   UserCog,
   Users,
   WashingMachine,
@@ -44,7 +44,7 @@ type StaffModule =
   | "GamingCenter"
   | "BadmintonCourt"
   | "Cafe"
-  | "Retail";
+  | "Salon";
 
 type PageAlert = {
   visible: boolean;
@@ -99,10 +99,10 @@ const moduleOptions: {
     icon: <Coffee size={18} />,
   },
   {
-    id: "Retail",
-    label: "Retail",
-    description: "Retail products, stock and sales",
-    icon: <Store size={18} />,
+    id: "Salon",
+    label: "Salon",
+    description: "Salon services, staff and bookings management",
+    icon: <Scissors size={18} />,
   },
 ];
 

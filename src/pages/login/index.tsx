@@ -53,22 +53,20 @@ export default function Login() {
   };
 
   return (
-    <main className="h-screen max-h-screen overflow-hidden bg-[#eef5ff] p-2 sm:p-3 lg:p-4">
-      <section className="relative mx-auto grid h-full max-h-full max-w-[1500px] overflow-hidden rounded-[28px] border border-blue-100 bg-white shadow-[0_24px_80px_rgba(30,64,175,0.16)] lg:grid-cols-[0.95fr_1.05fr]">
+    <main className="min-h-screen w-full bg-[#eef5ff] p-2 sm:p-3 lg:p-4">
+      <section className="relative mx-auto grid min-h-[640px] max-w-[1500px] overflow-hidden rounded-[28px] border border-blue-100 bg-white shadow-[0_24px_80px_rgba(30,64,175,0.16)] lg:min-h-[700px] lg:grid-cols-[0.95fr_1.05fr]">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_8%_10%,rgba(37,99,235,0.08),transparent_22%),radial-gradient(circle_at_92%_90%,rgba(59,130,246,0.08),transparent_24%)]"
         />
 
         {pageAlert.visible && (
-          <div>
-            <Alert
-              variant={pageAlert.variant as any}
-              title={pageAlert.title}
-              description={pageAlert.description}
-              onClose={() => setPageAlert((s) => ({ ...s, visible: false }))}
-            />
-          </div>
+          <Alert
+            variant={pageAlert.variant as any}
+            title={pageAlert.title}
+            description={pageAlert.description}
+            onClose={() => setPageAlert((s) => ({ ...s, visible: false }))}
+          />
         )}
 
         {loading && createPortal(

@@ -1,7 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { createPortal } from "react-dom";
 import {
   Settings,
   ChevronDown,
+  ChevronsUpDown,
   Calendar,
   Gauge,
   LayoutGrid,
@@ -10,10 +12,17 @@ import {
   Trophy,
   Gamepad2,
   Coffee,
-  ShoppingBag,
+  Scissors,
   Globe,
   Banknote,
   Users,
+  UserCog,
+  ClipboardList,
+  Wrench,
+  PackageCheck,
+  UtensilsCrossed,
+  CalendarDays,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -71,6 +80,161 @@ const gymNavItems: NavItem[] = [
     icon: Banknote,
     path: "/gym/payments",
     submenu: null,
+  },
+  {
+    id: "gym-members",
+    label: "Members",
+    icon: Users,
+    path: "/gym/members",
+    submenu: null,
+  },
+  {
+    id: "gym-trainers",
+    label: "Trainers",
+    icon: UserCog,
+    path: "/gym/trainers",
+    submenu: null,
+  },
+  {
+    id: "gym-plans",
+    label: "Membership Plans",
+    icon: ClipboardList,
+    path: "/gym/plans",
+    submenu: null,
+  }
+];
+
+const carWashNavItems: NavItem[] = [
+  {
+    id: "car-wash-dashboard",
+    label: "Dashboard",
+    icon: Gauge,
+    path: "/car-wash/dashboard",
+    submenu: null,
+  },
+  {
+    id: "car-wash-payments",
+    label: "Payments",
+    icon: Banknote,
+    path: "/car-wash/payments",
+    submenu: null,
+  },
+  {
+    id: "car-wash-services",
+    label: "Services",
+    icon: Wrench,
+    path: "/car-wash/services",
+    submenu: null,
+  },
+  {
+    id: "car-wash-packages",
+    label: "Packages",
+    icon: PackageCheck,
+    path: "/car-wash/packages",
+    submenu: null,
+  }
+];
+
+const cafeNavItems: NavItem[] = [
+  {
+    id: "cafe-dashboard",
+    label: "Dashboard",
+    icon: Gauge,
+    path: "/cafe/dashboard",
+    submenu: null,
+  },
+  {
+    id: "cafe-payments",
+    label: "Payments",
+    icon: Banknote,
+    path: "/cafe/payments",
+    submenu: null,
+  },
+  {
+    id: "cafe-menu",
+    label: "Menu",
+    icon: UtensilsCrossed,
+    path: "/cafe/menu",
+    submenu: null,
+  }
+];
+
+const badmintonNavItems: NavItem[] = [
+  {
+    id: "badminton-dashboard",
+    label: "Dashboard",
+    icon: Gauge,
+    path: "/badminton/dashboard",
+    submenu: null,
+  },
+  {
+    id: "badminton-payments",
+    label: "Payments",
+    icon: Banknote,
+    path: "/badminton/payments",
+    submenu: null,
+  },
+  {
+    id: "badminton-courts",
+    label: "Courts",
+    icon: Trophy,
+    path: "/badminton/courts",
+    submenu: null,
+  }
+];
+
+const gamingNavItems: NavItem[] = [
+  {
+    id: "gaming-dashboard",
+    label: "Dashboard",
+    icon: Gauge,
+    path: "/gaming/dashboard",
+    submenu: null,
+  },
+  {
+    id: "gaming-payments",
+    label: "Payments",
+    icon: Banknote,
+    path: "/gaming/payments",
+    submenu: null,
+  },
+  {
+    id: "gaming-games",
+    label: "Games",
+    icon: Gamepad2,
+    path: "/gaming/games",
+    submenu: null,
+  },
+  {
+    id: "gaming-settings",
+    label: "Settings",
+    icon: Settings,
+    path: "/gaming/settings",
+    submenu: null,
+  }
+];
+
+const salonNavItems: NavItem[] = [
+  {
+    id: "salon-dashboard",
+    label: "Dashboard",
+    icon: Gauge,
+    path: "/salon/dashboard",
+    submenu: null,
+  },
+  {
+    id: "salon-payments",
+    label: "Payments",
+    icon: Banknote,
+    path: "/salon/payments",
+    submenu: null,
+  },
+  {
+    id: "salon-services",
+    label: "Services",
+    icon: Scissors,
+    path: "/salon/services",
+    submenu: null,
   }
 ];
 
@@ -94,6 +258,13 @@ const mainNavItems: NavItem[] = [
     label: "Staff",
     icon: Users,
     path: "/main/staff",
+    submenu: null,
+  },
+  {
+    id: "holidays",
+    label: "Holidays",
+    icon: CalendarDays,
+    path: "/main/holidays",
     submenu: null,
   },
   {
@@ -143,10 +314,10 @@ const mainNavItems: NavItem[] = [
       path: "/cafe",
     },
     {
-      id: "retail",
-      label: "RETAIL",
-      icon: ShoppingBag,
-      path: "/retail",
+      id: "salon",
+      label: "SALON",
+      icon: Scissors,
+      path: "/salon",
     },
   ];
 
@@ -193,21 +364,20 @@ const mainNavItems: NavItem[] = [
     case "main":
       return mainNavItems;
 
-    // Future modules
-    case "badminton":
-      // return badmintonNavItems;
-
-    case "gaming":
-      // return gamingNavItems;
-
     case "car-wash":
-      // return carWashNavItems;
+      return carWashNavItems;
 
     case "cafe":
-      // return cafeNavItems;
+      return cafeNavItems;
 
-    case "retail":
-      // return retailNavItems;
+    case "badminton":
+      return badmintonNavItems;
+
+    case "gaming":
+      return gamingNavItems;
+
+    case "salon":
+      return salonNavItems;
 
     default:
       return mainNavItems;
@@ -215,6 +385,7 @@ const mainNavItems: NavItem[] = [
 })();
 
   return (
+    <>
     <aside
       className={`${
         isMobile ? "fixed inset-y-0 left-0 z-40" : "relative"
@@ -224,21 +395,23 @@ const mainNavItems: NavItem[] = [
     >
       <div className="flex h-full flex-col">
         {/* Brand Header */}
-        <div className="border-b border-gray-100 px-4 pb-3 pt-4">
+        <div className="relative px-4 pb-4 pt-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-900 text-white shadow-sm">
-              <span className="text-xs font-bold">KVK</span>
+            <div className="sidebar-badge-pulse flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-md shadow-blue-900/20 transition-transform duration-300 hover:scale-105">
+              <span className="text-xs font-extrabold tracking-wide">KVK</span>
             </div>
 
             {!collapsed && (
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-gray-900">
+                <p className="truncate text-sm font-bold text-gray-900">
                   KVK Arena
                 </p>
-                <p className="text-xs text-gray-500">Admin Panel</p>
+                <p className="text-xs font-medium text-gray-400">Admin Panel</p>
               </div>
             )}
           </div>
+
+          <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
         </div>
 
         {/* Navigation */}
@@ -247,23 +420,27 @@ const mainNavItems: NavItem[] = [
           <div className="mb-4">
             <button
               onClick={() => !collapsed && setIsModulesOpen(!isModulesOpen)}
-              className={`w-full rounded-xl border-gray-200 transition-all duration-200 cursor-pointer
+              className={`group relative w-full overflow-hidden rounded-xl border transition-all duration-300 cursor-pointer
       ${
         isModuleActive
-          ? "bg-blue-50"
-          : "border-gray-200 bg-white hover:border-blue-900 hover:bg-gray-50"
+          ? "border-blue-200 bg-gradient-to-r from-blue-50 via-blue-50/60 to-transparent shadow-sm"
+          : "border-gray-200 bg-white hover:-translate-y-0.5 hover:border-blue-300 hover:bg-gray-50 hover:shadow-sm"
       }
       ${collapsed ? "p-2 flex justify-center" : "px-4 py-3"}
     `}
             >
+              {isModuleActive && !collapsed && (
+                <span className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-blue-500 to-blue-700" />
+              )}
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-lg
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-300
           ${
             isModuleActive
-              ? "bg-blue-100 text-blue-900"
-              : "bg-gray-100 text-gray-600"
+              ? "bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-md shadow-blue-900/20"
+              : "bg-gray-100 text-gray-600 group-hover:bg-blue-50 group-hover:text-blue-700"
           }`}
                   >
                     {selectedModule ? (
@@ -291,63 +468,15 @@ const mainNavItems: NavItem[] = [
                 </div>
 
                 {!collapsed && (
-                  <ChevronDown
-                    size={18}
-                    className={`text-gray-400 transition-transform duration-200 ${
-                      isModulesOpen ? "rotate-180" : ""
-                    }`}
+                  <ChevronsUpDown
+                    size={16}
+                    className="text-gray-400 transition-transform duration-300 group-hover:scale-110"
                   />
                 )}
               </div>
             </button>
 
-            {!collapsed && isModulesOpen && (
-              <div className="mt-2 grid grid-cols-2 gap-2 rounded-xl border border-gray-200 bg-gray-50 p-2">
-                {modules.map((module) => {
-                  const ModuleIcon = module.icon;
-
-                  const active =
-                    location.pathname === module.path ||
-                    location.pathname.startsWith(`${module.path}/`);
-
-                  return (
-                    <button
-                      type="button"
-                      key={module.id}
-                      onClick={() => {
-                        handleNavigation(module.path)
-                        setIsModulesOpen(false)
-                      }}
-                      className={`group flex cursor-pointer flex-col items-start gap-2 rounded-lg border p-3 text-left transition-all duration-150 ${
-                        active
-                          ? "border-blue-300 bg-blue-900 text-white shadow-sm"
-                          : "border-gray-200 bg-white text-gray-700 hover:border-blue-900 hover:bg-blue-50"
-                      }`}
-                    >
-                      <span
-                        className={`flex h-8 w-8 items-center justify-center rounded-lg ${
-                          active
-                            ? "bg-white/15 text-white"
-                            : "bg-blue-50 text-blue-900 group-hover:bg-blue-100"
-                        }`}
-                      >
-                        <ModuleIcon size={16} />
-                      </span>
-
-                      <span
-                        className={`text-[11px] font-semibold tracking-wide ${
-                          active ? "text-white" : "text-gray-700"
-                        }`}
-                      >
-                        {module.label}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {!collapsed && !isModulesOpen && isModuleActive && (
+            {!collapsed && isModuleActive && (
               <p className="mt-1.5 px-2 text-[11px] font-medium text-blue-900">
                 A module page is currently active
               </p>
@@ -360,11 +489,11 @@ const mainNavItems: NavItem[] = [
               <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-gray-400">
                 {selectedModule?.label || "Main"} Menu
               </span>
-              <div className="h-px flex-1 bg-gray-200" />
+              <div className="h-px flex-1 bg-gradient-to-r from-gray-200 to-transparent" />
             </div>
           )}
 
-          {currentNavItems.map((item) => {
+          {currentNavItems.map((item, index) => {
             const Icon = item.icon;
 
             const active = item.submenu
@@ -373,16 +502,22 @@ const mainNavItems: NavItem[] = [
 
             const submenuOpen = openMenu === item.id;
 
-            const btnBase = `flex w-full cursor-pointer items-center ${
+            const btnBase = `group flex w-full cursor-pointer items-center ${
               collapsed ? "justify-center px-2" : "justify-between px-3"
-            } rounded-xl py-1.5 transition-colors duration-150`;
+            } rounded-xl py-2 transition-all duration-300`;
 
             const iconWrapper = `${
-              active ? "bg-blue-900 text-white" : "bg-transparent text-gray-400"
-            } flex h-8 w-8 items-center justify-center rounded-lg transition`;
+              active
+                ? "bg-white/15 text-white"
+                : "bg-gray-100 text-gray-400 group-hover:bg-blue-100 group-hover:text-blue-700"
+            } flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300`;
 
             return (
-              <div key={item.id}>
+              <div
+                key={item.id}
+                className="sidebar-item-animate"
+                style={{ animationDelay: `${index * 35}ms` }}
+              >
                 <button
                   type="button"
                   onClick={() => {
@@ -395,8 +530,8 @@ const mainNavItems: NavItem[] = [
                   title={collapsed ? item.label : undefined}
                   className={`${btnBase} ${
                     active && !collapsed
-                      ? "bg-blue-50 text-blue-900 shadow-sm"
-                      : "text-gray-700 hover:bg-gray-50"
+                      ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md shadow-blue-600/25"
+                      : "text-gray-700 hover:translate-x-0.5 hover:bg-blue-50/70"
                   }`}
                 >
                   <div
@@ -410,10 +545,8 @@ const mainNavItems: NavItem[] = [
 
                     {!collapsed && (
                       <span
-                        className={`text-sm ${
-                          active
-                            ? "font-semibold text-blue-700"
-                            : "text-gray-700"
+                        className={`text-sm transition-colors duration-300 ${
+                          active ? "font-semibold text-white" : "text-gray-700"
                         }`}
                       >
                         {item.label}
@@ -424,9 +557,9 @@ const mainNavItems: NavItem[] = [
                   {!collapsed && item.submenu && (
                     <ChevronDown
                       size={16}
-                      className={`text-gray-400 transition-transform ${
-                        submenuOpen ? "rotate-180" : ""
-                      }`}
+                      className={`transition-transform duration-300 ${
+                        active ? "text-white/80" : "text-gray-400"
+                      } ${submenuOpen ? "rotate-180" : ""}`}
                     />
                   )}
                 </button>
@@ -439,10 +572,10 @@ const mainNavItems: NavItem[] = [
                         type="button"
                         key={subitem.id}
                         onClick={() => handleNavigation(subitem.path)}
-                        className={`w-full cursor-pointer rounded-lg px-3 py-2 text-left text-sm transition ${
+                        className={`w-full cursor-pointer rounded-lg px-3 py-2 text-left text-sm transition-all duration-300 ${
                           isActive(subitem.path)
                             ? "bg-blue-50 font-medium text-blue-700"
-                            : "text-gray-600 hover:bg-gray-50"
+                            : "text-gray-600 hover:translate-x-0.5 hover:bg-gray-50"
                         }`}
                       >
                         {subitem.label}
@@ -458,15 +591,18 @@ const mainNavItems: NavItem[] = [
         {/* Footer */}
         <div className="mt-auto space-y-3 border-t border-gray-100 px-4 pb-4 pt-3">
           {!collapsed && (
-            <div className="flex items-center gap-2 text-xs text-emerald-600">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            <div className="flex items-center gap-2 text-xs font-medium text-emerald-600">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
               <span>System online</span>
             </div>
           )}
 
           {!collapsed && (
-            <div className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 px-3 py-3 shadow-sm">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-700">
+            <div className="group flex items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 px-3 py-3 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-200 hover:bg-white hover:shadow-md">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-xs font-semibold text-white shadow-sm transition-transform duration-300 group-hover:scale-105">
                 {admin?.firstName?.charAt(0)}
                 {admin?.lastName?.charAt(0)}
               </div>
@@ -482,7 +618,7 @@ const mainNavItems: NavItem[] = [
 
           {collapsed && (
             <div className="flex justify-center">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-700">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-xs font-semibold text-white shadow-sm transition-transform duration-300 hover:scale-105">
                 {admin?.firstName?.charAt(0)}
                 {admin?.lastName?.charAt(0)}
               </div>
@@ -491,5 +627,79 @@ const mainNavItems: NavItem[] = [
         </div>
       </div>
     </aside>
+
+    {isModulesOpen &&
+      createPortal(
+        <div
+          className="fixed inset-0 z-100 flex items-center justify-center bg-slate-950/60 px-4 py-6 backdrop-blur-sm"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setIsModulesOpen(false);
+          }}
+        >
+          <div className="w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Switch Module</h2>
+                <p className="text-sm text-gray-500">
+                  Select a business module to manage.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsModulesOpen(false)}
+                className="cursor-pointer rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 p-6 sm:grid-cols-3">
+              {modules.map((module) => {
+                const ModuleIcon = module.icon;
+
+                const active =
+                  location.pathname === module.path ||
+                  location.pathname.startsWith(`${module.path}/`);
+
+                return (
+                  <button
+                    type="button"
+                    key={module.id}
+                    onClick={() => {
+                      handleNavigation(module.path);
+                      setIsModulesOpen(false);
+                    }}
+                    className={`group flex cursor-pointer flex-col items-center gap-2 rounded-xl border p-4 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
+                      active
+                        ? "border-blue-700 bg-blue-900 text-white shadow-sm"
+                        : "border-gray-200 bg-white text-gray-700 hover:border-blue-300"
+                    }`}
+                  >
+                    <span
+                      className={`flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110 ${
+                        active
+                          ? "bg-white/15 text-white"
+                          : "bg-blue-50 text-blue-900 group-hover:bg-blue-100"
+                      }`}
+                    >
+                      <ModuleIcon size={22} />
+                    </span>
+
+                    <span
+                      className={`text-sm font-medium ${
+                        active ? "text-white" : "text-gray-900"
+                      }`}
+                    >
+                      {module.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
+    </>
   );
 }

@@ -112,3 +112,21 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .btn-elevated { box-shadow: 0 8px 24px rgba(41,107,225,0.08); }
 
+/* Premium sidebar animations */
+@keyframes sidebar-item-in {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.sidebar-item-animate {
+  animation: sidebar-item-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes sidebar-glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(41, 107, 225, 0.35); }
+  50% { box-shadow: 0 0 0 6px rgba(41, 107, 225, 0); }
+}
+.sidebar-badge-pulse {
+  animation: sidebar-glow-pulse 2.6s ease-in-out infinite;
+}
+
+
