@@ -313,11 +313,11 @@ export default function Holidays() {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="page-container">
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-xl md:text-2xl font-semibold text-gray-900">Holidays</h1>
+            <h1 className="page-heading">Holidays</h1>
             <p className="text-sm text-gray-500 mt-1">
               Maintain the company holiday calendar
             </p>
@@ -326,7 +326,7 @@ export default function Holidays() {
           <button
             type="button"
             onClick={() => openCreateModal()}
-            className="flex items-center gap-2 px-3 py-2.5 bg-blue-700 text-white rounded cursor-pointer transition-all duration-300 text-sm hover:-translate-y-0.5 hover:shadow-lg hover:bg-blue-800"
+            className="action-primary flex items-center gap-2 px-3 py-2.5 bg-blue-700 text-white rounded cursor-pointer transition-all duration-300 text-sm hover:shadow-lg hover:bg-blue-800"
           >
             <Plus size={16} />
             Add Holiday
@@ -341,7 +341,7 @@ export default function Holidays() {
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]">
           {/* Calendar */}
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
+          <div className="surface-panel rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CalendarDays size={18} className="text-blue-700" />
@@ -443,7 +443,7 @@ export default function Holidays() {
           </div>
 
           {/* Upcoming list */}
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
+          <div className="surface-panel rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
             <div className="mb-3 flex items-center gap-2">
               <CalendarCheck size={16} className="text-blue-700" />
               <h3 className="text-sm font-semibold text-gray-900">Upcoming Holidays</h3>
@@ -458,7 +458,7 @@ export default function Holidays() {
                     key={holiday.id}
                     type="button"
                     onClick={() => openEditModal(holiday)}
-                    className="flex w-full cursor-pointer items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 text-left transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-50/60"
+                    className="flex w-full cursor-pointer items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 text-left transition-all duration-300 hover:bg-blue-50/60"
                   >
                     <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-blue-700 text-white">
                       <span className="text-[9px] font-semibold uppercase leading-none">
@@ -527,7 +527,7 @@ export default function Holidays() {
                     onChange={(event) =>
                       setForm((current) => ({ ...current, date: event.target.value }))
                     }
-                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                   {formErrors.date && (
                     <p className="mt-1 text-xs text-red-600">{formErrors.date}</p>
@@ -543,7 +543,7 @@ export default function Holidays() {
                     onChange={(event) =>
                       setForm((current) => ({ ...current, description: event.target.value }))
                     }
-                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     placeholder="e.g. New Year's Day"
                   />
                   {formErrors.description && (
@@ -564,7 +564,7 @@ export default function Holidays() {
                       onChange={(event) =>
                         setForm((current) => ({ ...current, durationDays: event.target.value }))
                       }
-                      className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                     {formErrors.durationDays && (
                       <p className="mt-1 text-xs text-red-600">{formErrors.durationDays}</p>
@@ -613,7 +613,7 @@ export default function Holidays() {
                     type="button"
                     disabled={isSaving}
                     onClick={handleSave}
-                    className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-60"
+                    className="action-primary inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-60"
                   >
                     {isSaving ? (
                       <Loader2 size={14} className="animate-spin" />

@@ -48,7 +48,7 @@ function StatCard({
   gradient: string;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-gray-300">
+    <div className="metric-card group">
       <div
         className={`absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-10 transition-transform duration-500 group-hover:scale-125 ${gradient}`}
       />
@@ -120,7 +120,7 @@ export default function CarWashDashboard() {
 
   if (error && !data) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="page-container">
         <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
@@ -131,10 +131,10 @@ export default function CarWashDashboard() {
   if (!data) return null;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="page-container">
       <div className="space-y-6">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+          <h1 className="page-heading">
             Car Wash Dashboard
           </h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -172,7 +172,7 @@ export default function CarWashDashboard() {
 
         {/* Charts */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
+          <div className="surface-panel rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
             <div className="mb-2 flex items-center gap-2">
               <TrendingUp size={16} className="text-blue-700" />
               <h3 className="text-sm font-semibold text-gray-900">
@@ -217,7 +217,7 @@ export default function CarWashDashboard() {
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
+          <div className="surface-panel rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
             <div className="mb-2 flex items-center gap-2">
               <LineChartIcon size={16} className="text-emerald-700" />
               <h3 className="text-sm font-semibold text-gray-900">

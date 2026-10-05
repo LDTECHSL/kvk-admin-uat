@@ -1,3 +1,4 @@
+import { ADMIN_ACCESS_ERROR, hasAllModuleAccess } from '@/lib/admin-access';
 import { getEnv } from "@/env";
 import axios from "axios";
 
@@ -16,7 +17,10 @@ const getToken = () => {
 
 export const login = async (username: string, password: string) => {
   try {
-    const response = await axios.post(`${AUTH_API_URL}staff/login`, { username, password });
+    const response = await axios.post(`${AUTH_API_URL}staff/login`, { username, password, moduleName: 'Admin' });
+    if (!hasAllModuleAccess(response.data.modules)) {
+      throw new Error(ADMIN_ACCESS_ERROR);
+    }
     return response.data;
   } catch (error) {
     console.error("Login failed:", error);

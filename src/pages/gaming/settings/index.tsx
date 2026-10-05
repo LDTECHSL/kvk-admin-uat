@@ -355,10 +355,10 @@ export default function GamingSettings() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="page-container">
       <div className="space-y-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-gray-900">Gaming Settings</h1>
+          <h1 className="page-heading">Gaming Settings</h1>
           <p className="text-sm text-gray-500 mt-1">
             Manage stations and slot configuration for each category
           </p>
@@ -401,7 +401,7 @@ export default function GamingSettings() {
             {activeCategory && (
               <div className="space-y-4">
                 {/* Stations */}
-                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
+                <div className="surface-panel rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
                   <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div className="flex items-center gap-2">
                       <Monitor size={16} className="text-blue-700" />
@@ -412,7 +412,7 @@ export default function GamingSettings() {
                     <button
                       type="button"
                       onClick={openCreateStationModal}
-                      className="flex items-center gap-2 px-3 py-2 bg-blue-700 text-white rounded cursor-pointer transition-all duration-300 text-sm hover:-translate-y-0.5 hover:shadow-lg hover:bg-blue-800"
+                      className="action-primary flex items-center gap-2 px-3 py-2 bg-blue-700 text-white rounded cursor-pointer transition-all duration-300 text-sm hover:shadow-lg hover:bg-blue-800"
                     >
                       <Plus size={14} />
                       New Station
@@ -426,7 +426,7 @@ export default function GamingSettings() {
                   )}
 
                   <div className="mt-4 overflow-x-auto">
-                    <table className="w-full table-auto text-sm">
+                    <table className="data-table w-full table-auto text-sm">
                       <thead>
                         <tr className="text-left text-xs text-gray-600 border-b border-gray-100">
                           <th className="py-2 px-3">STATION CODE</th>
@@ -528,7 +528,7 @@ export default function GamingSettings() {
                 </div>
 
                 {/* Slot Configuration */}
-                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
+                <div className="surface-panel rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
                   <div className="flex items-center gap-2">
                     <Clock size={16} className="text-blue-700" />
                     <h2 className="text-base font-semibold text-gray-900">
@@ -574,7 +574,7 @@ export default function GamingSettings() {
                                 startTime: event.target.value,
                               }))
                             }
-                            className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                           />
                           {slotFormErrors.startTime && (
                             <p className="mt-1 text-xs text-red-600">{slotFormErrors.startTime}</p>
@@ -594,7 +594,7 @@ export default function GamingSettings() {
                                 endTime: event.target.value,
                               }))
                             }
-                            className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                           />
                           {slotFormErrors.endTime && (
                             <p className="mt-1 text-xs text-red-600">{slotFormErrors.endTime}</p>
@@ -616,7 +616,7 @@ export default function GamingSettings() {
                                 slotDurationMinutes: event.target.value,
                               }))
                             }
-                            className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                           />
                           {slotFormErrors.slotDurationMinutes && (
                             <p className="mt-1 text-xs text-red-600">
@@ -640,7 +640,7 @@ export default function GamingSettings() {
                                 slotGapMinutes: event.target.value,
                               }))
                             }
-                            className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                           />
                           {slotFormErrors.slotGapMinutes && (
                             <p className="mt-1 text-xs text-red-600">
@@ -664,7 +664,7 @@ export default function GamingSettings() {
                                 price: event.target.value,
                               }))
                             }
-                            className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                            className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                           />
                           {slotFormErrors.price && (
                             <p className="mt-1 text-xs text-red-600">{slotFormErrors.price}</p>
@@ -684,7 +684,7 @@ export default function GamingSettings() {
                           type="button"
                           disabled={isSavingSlotConfig}
                           onClick={handleSaveSlotConfig}
-                          className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-60"
+                          className="action-primary inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-60"
                         >
                           {isSavingSlotConfig ? (
                             <Loader2 size={14} className="animate-spin" />
@@ -752,7 +752,7 @@ export default function GamingSettings() {
                         stationCode: event.target.value,
                       }))
                     }
-                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     placeholder="e.g. PC-01"
                   />
                   {stationFormErrors.stationCode && (
@@ -767,7 +767,7 @@ export default function GamingSettings() {
                     onChange={(event) =>
                       setStationForm((current) => ({ ...current, name: event.target.value }))
                     }
-                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     placeholder="e.g. Gaming PC 1"
                   />
                   {stationFormErrors.name && (
@@ -789,7 +789,7 @@ export default function GamingSettings() {
                   type="button"
                   disabled={isSavingStation}
                   onClick={handleSaveStation}
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-60"
+                  className="action-primary inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-60"
                 >
                   {isSavingStation && <Loader2 size={14} className="animate-spin" />}
                   {stationFormModal.mode === "create" ? "Create Station" : "Save Changes"}

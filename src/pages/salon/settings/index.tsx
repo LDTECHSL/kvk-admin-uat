@@ -101,7 +101,7 @@ export default function SalonSettings() {
     <div className="max-w-3xl mx-auto px-4 py-6">
       <div className="space-y-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+          <h1 className="page-heading">
             Salon Settings
           </h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -110,7 +110,7 @@ export default function SalonSettings() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-6">
+        <div className="surface-panel rounded-2xl border border-gray-200 bg-white p-6">
           <div className="mb-6 flex items-start gap-3 rounded-lg border border-blue-100 bg-blue-50 p-4">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
               <Clock size={18} />
@@ -161,7 +161,7 @@ export default function SalonSettings() {
                     value={openTime}
                     onChange={(e) => setOpenTime(e.target.value)}
                     required
-                    className="h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
 
@@ -178,7 +178,7 @@ export default function SalonSettings() {
                     value={closeTime}
                     onChange={(e) => setCloseTime(e.target.value)}
                     required
-                    className="h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
               </div>
@@ -200,7 +200,7 @@ export default function SalonSettings() {
                     setSlotIntervalMinutes(Number(e.target.value))
                   }
                   required
-                  className="h-11 w-full max-w-[220px] rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="field-control h-11 w-full max-w-[220px] rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
                 <p className="mt-1.5 text-xs text-gray-500">
                   How far apart bookable start times are, e.g. 15 minutes.
@@ -210,7 +210,7 @@ export default function SalonSettings() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="flex h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-700 px-5 text-sm font-medium text-white transition hover:-translate-y-0.5 hover:bg-blue-800 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+                className="action-primary flex h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-blue-700 px-5 text-sm font-medium text-white transition hover:bg-blue-800 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
               >
                 {isSaving ? (
                   <Loader2 size={16} className="animate-spin" />

@@ -1,139 +1,38 @@
-import Alert from '@/components/ui/alert';
+import { useState, type FormEvent } from 'react';
+import { ArrowRight, Loader2, ShieldCheck, UserRound, LockKeyhole } from 'lucide-react';
+import Alert, { type AlertVariant } from '@/components/ui/alert';
 import { changePassword } from '@/services/auth-api';
-import { ArrowRight, Loader2, Lock } from 'lucide-react';
-import { useState } from 'react';
-
+import { modules } from '@/lib/navigation';
 export default function SettingsPage() {
-    const [pageAlert, setPageAlert] = useState<{ visible: boolean; variant?: 'success' | 'error' | 'warning' | 'info'; title?: string; description?: string }>({ visible: false });
-    const admin = localStorage.getItem('admin') ? JSON.parse(localStorage.getItem('admin') as string) : null;
-    const [fullName, setFullName] = useState(admin ? admin.firstName + ' ' + admin.lastName : 'Admin User');
-    const [email, setEmail] = useState(admin ? admin.email : 'admin@kvkgym.com');
-    const [currentPassword, setCurrentPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-
-    const handleChangePassword = async () => {
-
-        if (newPassword !== confirmPassword) {
-            setPageAlert({
-                visible: true,
-                variant: 'error',
-                title: 'Password mismatch',
-                description: 'New password and confirm password do not match. Please check and try again.'
-            })
-            return
-        }
-
-        setLoading(true)
-        try {
-            const body = {
-                userId: admin.userId,
-                userName: admin.userName,
-                currentPassword,
-                newPassword
-            }
-
-            await changePassword(body);
-            setPageAlert({
-                visible: true,
-                variant: 'success',
-                title: 'Update Password',
-                description: 'The password has been successfully updated.'
-            })
-        } catch (error: any) {
-            setPageAlert({
-                visible: true,
-                variant: 'error',
-                title: 'Update password failed!',
-                description: error.response.data.message || 'An error occurblue while updating the password. Please try again.'
-            });
-        } finally {
-            setLoading(false)
-        }
-    }
-
-
-    return (
-        <div className="max-w-7xl mx-auto px-4 py-6">
-            {pageAlert.visible && (
-                <div>
-                    <Alert variant={pageAlert.variant as any} title={pageAlert.title} description={pageAlert.description} onClose={() => setPageAlert((s) => ({ ...s, visible: false }))} />
-                </div>
-            )}
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h1 className="text-xl md:text-3xl font-semibold text-gray-900">Settings</h1>
-                    <p className="text-sm text-gray-500 mt-1">Manage your account, preferences and security</p>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
-                {/* Left column - Profile & Notifications */}
-                <div className="lg:col-span-2 space-y-6">
-                    <section className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                        <div className="flex gap-6">
-
-                            <div className="flex-1">
-                                <div className="flex items-start justify-between mb-2">
-                                    <div>
-                                        <h2 className="text-lg font-semibold text-gray-900">Profile</h2>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm text-gray-700 mb-1.5">Full name</label>
-                                        <input value={fullName} onChange={(e) => setFullName(e.target.value)} readOnly className="w-full px-3 py-1 border rounded-md" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm text-gray-700 mb-1.5">Email</label>
-                                        <input value={email} onChange={(e) => setEmail(e.target.value)} readOnly className="w-full px-3 py-1 border rounded-md" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-
-                {/* Right column - Security, Billing, Danger */}
-                <div className="space-y-6">
-                    <section className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-4">
-                                <Lock size={20} className="text-gray-700" />
-                                <div>
-                                    <h2 className="text-lg font-semibold text-gray-900">Security</h2>
-                                    <p className="text-sm text-gray-500">Change your password and manage access</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-3">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label className="block text-sm text-gray-700 mb-1.5">Current password</label>
-                                    <input value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} type="password" className="w-full px-3 py-1 border rounded-md" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm text-gray-700 mb-1.5">New password</label>
-                                    <input value={newPassword} onChange={(e) => setNewPassword(e.target.value)} type="password" className="w-full px-3 py-1 border rounded-md" />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm text-gray-700 mb-1.5">Confirm password</label>
-                                <input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} type="password" className="w-full px-3 py-1 border rounded-md" />
-                            </div>
-                            <div className="flex justify-end">
-                                <button disabled={!currentPassword && !newPassword && !confirmPassword} onClick={handleChangePassword} className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-700">
-                                    {loading ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />}
-                                    {loading ? "Updating" : "Change Password"}
-                                </button>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            </div>
-        </div>
-    );
+  const admin = JSON.parse(localStorage.getItem('admin') || 'null');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState<{ variant: AlertVariant; title: string; description: string } | null>(null);
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (newPassword !== confirmPassword) { setAlert({ variant: 'error', title: 'Passwords do not match', description: 'Enter the same new password in both fields.' }); return; }
+    setLoading(true);
+    try {
+      await changePassword({ userId: admin.userId, userName: admin.userName, currentPassword, newPassword });
+      setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+      setAlert({ variant: 'success', title: 'Password updated', description: 'Your new password is ready to use.' });
+    } catch (error) {
+      setAlert({ variant: 'error', title: 'Unable to update password', description: (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Please check your current password and try again.' });
+    } finally { setLoading(false); }
+  };
+  return <div className="page-container">
+    {alert && <Alert {...alert} onClose={() => setAlert(null)} />}
+    <div className="mb-8"><p className="eyebrow">YOUR WORKSPACE</p><h1 className="page-heading">Account settings</h1><p className="mt-2 text-sm text-slate-500">Your profile, workspace access and sign-in details.</p></div>
+    <div className="settings-grid">
+      <section className="surface-panel profile-panel"><div className="profile-banner" /><div className="profile-panel-body"><div className="profile-avatar">{admin?.firstName?.charAt(0)}{admin?.lastName?.charAt(0)}</div><h2>{admin?.firstName} {admin?.lastName}</h2><p>{admin?.email}</p><span className="profile-role"><ShieldCheck size={12} />Workspace administrator</span><div className="profile-details"><span><UserRound size={15} />Username<strong>{admin?.userName}</strong></span><span><ShieldCheck size={15} />Module access<strong>All modules</strong></span></div><div className="profile-module-list">{modules.map(module => <span key={module.path}><module.icon size={13} />{module.label}</span>)}</div><p className="profile-note">Contact your administrator to update your account information.</p></div></section>
+      <section className="surface-panel security-panel"><div className="security-heading"><span><LockKeyhole size={20} /></span><div><h2>Password & security</h2><p>Keep your workspace access secure.</p></div></div><form onSubmit={submit} aria-busy={loading}>
+        <div className="login-field"><label htmlFor="current-password">Current password</label><div><input id="current-password" type="password" autoComplete="current-password" required value={currentPassword} onChange={event => setCurrentPassword(event.target.value)} disabled={loading} /></div></div>
+        <div className="login-field"><label htmlFor="new-password">New password</label><div><input id="new-password" type="password" autoComplete="new-password" required value={newPassword} onChange={event => setNewPassword(event.target.value)} disabled={loading} /></div></div>
+        <div className="login-field"><label htmlFor="confirm-password">Confirm new password</label><div><input id="confirm-password" type="password" autoComplete="new-password" required value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} disabled={loading} /></div></div>
+        <div className="security-actions"><p>Choose a password you do not use elsewhere.</p><button className="action-primary" type="submit" disabled={loading || !currentPassword || !newPassword || !confirmPassword}>{loading ? <Loader2 size={15} className="animate-spin" /> : <ArrowRight size={15} />}{loading ? 'Updating...' : 'Update password'}</button></div>
+      </form></section>
+    </div>
+  </div>;
 }

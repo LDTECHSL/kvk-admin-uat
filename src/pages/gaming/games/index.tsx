@@ -214,21 +214,21 @@ export default function GamingGames() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="page-container">
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-xl md:text-2xl font-semibold text-gray-900">Games</h1>
+            <h1 className="page-heading">Games</h1>
             <p className="text-sm text-gray-500 mt-1">Manage the gaming catalog</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex min-w-[220px] items-center gap-2 bg-white border border-gray-200 rounded-md px-3 py-2 text-sm shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-gray-300">
+            <div className="flex min-w-[220px] items-center gap-2 bg-white border border-gray-200 rounded-md px-3 py-2 text-sm shadow-sm transition-all duration-300 hover:shadow-md hover:border-gray-300">
               <Search size={16} className="text-gray-400" />
               <input
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                className="w-full outline-none text-sm"
+                className="field-control w-full outline-none text-sm"
                 placeholder="Search by name or description..."
               />
             </div>
@@ -236,7 +236,7 @@ export default function GamingGames() {
             <button
               type="button"
               onClick={openCreateModal}
-              className="flex items-center gap-2 px-3 py-2.5 bg-blue-700 text-white rounded cursor-pointer transition-all duration-300 text-sm hover:-translate-y-0.5 hover:shadow-lg hover:bg-blue-800"
+              className="action-primary flex items-center gap-2 px-3 py-2.5 bg-blue-700 text-white rounded cursor-pointer transition-all duration-300 text-sm hover:shadow-lg hover:bg-blue-800"
             >
               <Plus size={16} />
               New Game
@@ -293,7 +293,7 @@ export default function GamingGames() {
             filteredGames.map((game) => (
               <div
                 key={game.id}
-                className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-gray-300"
+                className="surface-panel group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-300"
               >
                 <div className="flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 to-gray-50">
                   {game.image ? (
@@ -426,7 +426,7 @@ export default function GamingGames() {
                     onChange={(event) =>
                       setForm((current) => ({ ...current, name: event.target.value }))
                     }
-                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     placeholder="e.g. FIFA 25"
                   />
                   {formErrors.name && (
@@ -444,7 +444,7 @@ export default function GamingGames() {
                       setForm((current) => ({ ...current, description: event.target.value }))
                     }
                     rows={3}
-                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     placeholder="Optional description"
                   />
                 </div>
@@ -463,7 +463,7 @@ export default function GamingGames() {
                   type="button"
                   disabled={isSaving}
                   onClick={handleSave}
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-60"
+                  className="action-primary inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-60"
                 >
                   {isSaving && <Loader2 size={14} className="animate-spin" />}
                   {formModal.mode === "create" ? "Create Game" : "Save Changes"}

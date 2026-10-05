@@ -310,7 +310,10 @@ export default function Staff() {
 
   const handleOpenModuleModal = (staff: StaffMember) => {
     setSelectedStaff(staff);
-    setSelectedModules(staff.assignedModules ?? []);
+    // Ignore legacy module names that the API no longer accepts.
+    setSelectedModules((staff.assignedModules ?? []).filter(module =>
+      moduleOptions.some(option => option.id === module),
+    ));
     setIsModuleModalOpen(true);
   };
 
@@ -359,6 +362,7 @@ export default function Staff() {
         variant: "error",
         title: "Unable to assign modules",
         description:
+          (error as { response?: { data?: { error?: string } } })?.response?.data?.error ||
           "An error occurred while updating module access. Please try again.",
       });
     } finally {
@@ -401,7 +405,7 @@ export default function Staff() {
           document.body,
         )}
 
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="page-container">
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
@@ -410,7 +414,7 @@ export default function Staff() {
             </div>
 
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              <h1 className="page-heading">
                 Staff
               </h1>
 
@@ -425,7 +429,7 @@ export default function Staff() {
               type="button"
               onClick={handleFetchStaff}
               disabled={isLoading}
-              className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="action-secondary inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <RefreshCcw
                 size={16}
@@ -437,7 +441,7 @@ export default function Staff() {
             <button
               type="button"
               onClick={handleOpenAddModal}
-              className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-900 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              className="action-primary inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-900 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
             >
               <Plus size={17} />
               Add Staff
@@ -466,7 +470,7 @@ export default function Staff() {
         </div>
 
         {/* Staff Table */}
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <section className="surface-panel overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full sm:max-w-md">
               <Search
@@ -482,7 +486,7 @@ export default function Staff() {
                   setCurrentPage(1);
                 }}
                 placeholder="Search name, username or email..."
-                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                className="field-control h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
               />
             </div>
 
@@ -496,7 +500,7 @@ export default function Staff() {
 
           {/* Desktop Table */}
           <div className="hidden overflow-x-auto md:block">
-            <table className="w-full min-w-[850px]">
+            <table className="data-table w-full min-w-[850px]">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/80">
                   <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
@@ -566,7 +570,7 @@ export default function Staff() {
                           <button
                             type="button"
                             onClick={() => handleOpenModuleModal(staff)}
-                            className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700"
+                            className="action-secondary inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700"
                           >
                             <UserCog size={16} />
                             Assign Modules
@@ -622,7 +626,7 @@ export default function Staff() {
                   <button
                     type="button"
                     onClick={() => handleOpenModuleModal(staff)}
-                    className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700"
+                    className="action-secondary inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700"
                   >
                     <UserCog size={16} />
                     Assign Modules
@@ -669,7 +673,7 @@ export default function Staff() {
                       setItemsPerPage(Number(event.target.value));
                       setCurrentPage(1);
                     }}
-                    className="h-9 cursor-pointer rounded-lg border border-slate-200 bg-white px-2 text-sm font-medium text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control h-9 cursor-pointer rounded-lg border border-slate-200 bg-white px-2 text-sm font-medium text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   >
                     <option value={5}>5</option>
                     <option value={10}>10</option>
@@ -688,7 +692,7 @@ export default function Staff() {
                     )
                   }
                   disabled={currentPage === 1}
-                  className="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-slate-200 disabled:hover:bg-white disabled:hover:text-slate-700"
+                  className="action-secondary inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-slate-200 disabled:hover:bg-white disabled:hover:text-slate-700"
                 >
                   Previous
                 </button>
@@ -746,7 +750,7 @@ export default function Staff() {
                     )
                   }
                   disabled={currentPage === totalPages}
-                  className="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-slate-200 disabled:hover:bg-white disabled:hover:text-slate-700"
+                  className="action-secondary inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-slate-200 disabled:hover:bg-white disabled:hover:text-slate-700"
                 >
                   Next
                 </button>
@@ -883,7 +887,7 @@ function AddStaffModal({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="inline-flex h-11 cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-50"
+              className="action-secondary inline-flex h-11 cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-50"
             >
               Cancel
             </button>
@@ -891,7 +895,7 @@ function AddStaffModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-900 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+              className="action-primary inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-900 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
             >
               {isSubmitting ? (
                 <>
@@ -1047,7 +1051,7 @@ function AssignModulesModal({
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="inline-flex h-11 cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-50"
+              className="action-secondary inline-flex h-11 cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-50"
             >
               Cancel
             </button>
@@ -1056,7 +1060,7 @@ function AssignModulesModal({
               type="button"
               onClick={onSave}
               disabled={isSubmitting}
-              className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-900 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+              className="action-primary inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-900 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
             >
               {isSubmitting ? (
                 <>
@@ -1138,7 +1142,7 @@ function SummaryCard({
   iconClassName,
 }: SummaryCardProps) {
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="surface-panel flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div
         className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconClassName}`}
       >

@@ -188,11 +188,11 @@ export default function GymMembers() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="page-container">
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+            <h1 className="page-heading">
               Members
             </h1>
             <p className="text-sm text-gray-500 mt-1">
@@ -201,12 +201,12 @@ export default function GymMembers() {
           </div>
 
           <div className="w-full max-w-md">
-            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-3 py-2 text-sm shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-gray-300">
+            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-3 py-2 text-sm shadow-sm transition-all duration-300 hover:shadow-md hover:border-gray-300">
               <Search size={16} className="text-gray-400" />
               <input
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                className="w-full outline-none text-sm"
+                className="field-control w-full outline-none text-sm"
                 placeholder="Search by name, membership no, email, or phone..."
               />
             </div>
@@ -252,7 +252,7 @@ export default function GymMembers() {
             <select
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value)}
-              className="rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-700"
+              className="field-control rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-700"
             >
               <option value="all">All</option>
               {MEMBERSHIP_STATUS_OPTIONS.map((status) => (
@@ -270,7 +270,7 @@ export default function GymMembers() {
             <select
               value={planFilter}
               onChange={(event) => setPlanFilter(event.target.value)}
-              className="rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-700"
+              className="field-control rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-700"
             >
               <option value="all">All</option>
               {planOptions.map((plan) => (
@@ -288,7 +288,7 @@ export default function GymMembers() {
             <select
               value={paymentFilter}
               onChange={(event) => setPaymentFilter(event.target.value)}
-              className="rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-700"
+              className="field-control rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-700"
             >
               <option value="all">All</option>
               {PAYMENT_STATUS_OPTIONS.map((option) => (
@@ -310,10 +310,10 @@ export default function GymMembers() {
           )}
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:border-gray-300">
+        <div className="surface-panel bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:border-gray-300">
           <div className="px-4 py-3">
             <div className="overflow-x-auto">
-              <table className="w-full table-auto text-sm">
+              <table className="data-table w-full table-auto text-sm">
                 <thead>
                   <tr className="text-left text-xs text-gray-600 border-b border-gray-100">
                     <th className="py-2 px-3">MEMBER</th>
@@ -437,7 +437,7 @@ export default function GymMembers() {
                     setPageSize(Number(event.target.value));
                     setPage(1);
                   }}
-                  className="border rounded-md px-2 py-1 text-sm"
+                  className="field-control border rounded-md px-2 py-1 text-sm"
                 >
                   <option value={5}>5</option>
                   <option value={10}>10</option>
@@ -447,7 +447,7 @@ export default function GymMembers() {
               <button
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page === 1}
-                className="px-3 py-1 rounded-md border bg-white text-sm disabled:opacity-50 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sm hover:bg-gray-50"
+                className="action-secondary px-3 py-1 rounded-md border bg-white text-sm disabled:opacity-50 transition-all duration-300 hover:shadow-sm hover:bg-gray-50"
               >
                 Prev
               </button>
@@ -465,7 +465,7 @@ export default function GymMembers() {
               <button
                 onClick={() => setPage(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
-                className="px-3 py-1 rounded-md border bg-white text-sm disabled:opacity-50 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sm hover:bg-gray-50"
+                className="action-secondary px-3 py-1 rounded-md border bg-white text-sm disabled:opacity-50 transition-all duration-300 hover:shadow-sm hover:bg-gray-50"
               >
                 Next
               </button>

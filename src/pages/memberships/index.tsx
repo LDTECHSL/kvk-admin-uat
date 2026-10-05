@@ -406,7 +406,7 @@ export default function Memberships() {
           </div>,
           document.body,
         )}
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="page-container">
         {/* Page Header */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -416,7 +416,7 @@ export default function Memberships() {
               </div>
 
               <div>
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+                <h1 className="page-heading">
                   Memberships
                 </h1>
                 <p className="text-sm text-slate-500">
@@ -430,7 +430,7 @@ export default function Memberships() {
             <button
               type="button"
               onClick={() => handleGenerateCoupons()}
-              className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-900 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
+              className="action-primary inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-900 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
             >
               <Gift size={17} />
               Generate Coupons
@@ -440,7 +440,7 @@ export default function Memberships() {
               type="button"
               onClick={handleFetchMembers}
               disabled={isLoading}
-              className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="action-secondary inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <RefreshCcw
                 size={16}
@@ -476,7 +476,7 @@ export default function Memberships() {
         </div>
 
         {/* Table Container */}
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <section className="surface-panel overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           {/* Filters */}
           <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full sm:max-w-md">
@@ -490,7 +490,7 @@ export default function Memberships() {
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="Search name, ID, username or email..."
-                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                className="field-control h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
               />
             </div>
 
@@ -500,7 +500,7 @@ export default function Memberships() {
                 onChange={(event) =>
                   setStatusFilter(event.target.value as StatusFilter)
                 }
-                className="h-11 w-full cursor-pointer appearance-none rounded-xl border border-slate-200 bg-white px-4 pr-10 text-sm font-medium text-slate-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                className="field-control h-11 w-full cursor-pointer appearance-none rounded-xl border border-slate-200 bg-white px-4 pr-10 text-sm font-medium text-slate-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
               >
                 <option value="all">All statuses</option>
                 <option value="2">Pending</option>
@@ -516,7 +516,7 @@ export default function Memberships() {
 
           {/* Desktop Table */}
           <div className="hidden overflow-x-auto md:block">
-            <table className="w-full min-w-[900px]">
+            <table className="data-table w-full min-w-[900px]">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/80">
                   <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
@@ -617,7 +617,7 @@ export default function Memberships() {
                               onClick={(event) =>
                                 handleToggleActionMenu(event, member)
                               }
-                              className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700"
+                              className="action-secondary inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700"
                               aria-label={`Open actions for ${member.firstName} ${member.lastName}`}
                               aria-expanded={
                                 actionMenu?.member.id === member.id
@@ -706,7 +706,7 @@ export default function Memberships() {
                     <button
                       type="button"
                       onClick={(event) => handleToggleActionMenu(event, member)}
-                      className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700"
+                      className="action-secondary inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700"
                       aria-expanded={actionMenu?.member.id === member.id}
                       aria-haspopup="menu"
                     >
@@ -756,7 +756,7 @@ export default function Memberships() {
                       setItemsPerPage(Number(event.target.value));
                       setCurrentPage(1);
                     }}
-                    className="h-9 cursor-pointer rounded-lg border border-slate-200 bg-white px-2 text-sm font-medium text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control h-9 cursor-pointer rounded-lg border border-slate-200 bg-white px-2 text-sm font-medium text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   >
                     <option value={5}>5</option>
                     <option value={10}>10</option>
@@ -775,7 +775,7 @@ export default function Memberships() {
                     )
                   }
                   disabled={currentPage === 1}
-                  className="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-slate-200 disabled:hover:bg-white disabled:hover:text-slate-700"
+                  className="action-secondary inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-slate-200 disabled:hover:bg-white disabled:hover:text-slate-700"
                 >
                   Previous
                 </button>
@@ -829,7 +829,7 @@ export default function Memberships() {
                     )
                   }
                   disabled={currentPage === totalPages}
-                  className="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-slate-200 disabled:hover:bg-white disabled:hover:text-slate-700"
+                  className="action-secondary inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-slate-200 disabled:hover:bg-white disabled:hover:text-slate-700"
                 >
                   Next
                 </button>
@@ -851,7 +851,7 @@ export default function Memberships() {
             <div
               role="menu"
               aria-label={`Actions for ${actionMenu.member.firstName} ${actionMenu.member.lastName}`}
-              className="fixed z-[9999] w-52 overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xl shadow-slate-900/15"
+              className="surface-panel fixed z-[9999] w-52 overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xl shadow-slate-900/15"
               style={{
                 top: actionMenu.top,
                 left: actionMenu.left,
@@ -1200,7 +1200,7 @@ function MemberApprovalModal({
               type="button"
               onClick={onClose}
               disabled={isApproving}
-              className="inline-flex h-11 cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+              className="action-secondary inline-flex h-11 cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
             </button>
@@ -1209,7 +1209,7 @@ function MemberApprovalModal({
               type="button"
               onClick={onApprove}
               disabled={!confirmed || isApproving}
-              className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-900 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
+              className="action-primary inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-900 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
             >
               {isApproving ? (
                 <>
@@ -1260,7 +1260,7 @@ function MemberDetail({
 
 function SummaryCard({ title, value, icon, iconClassName }: SummaryCardProps) {
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="surface-panel flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div
         className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconClassName}`}
       >

@@ -1,6 +1,9 @@
+import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import {
+  ArrowUpRight,
+  RefreshCw,
   Users,
   LayoutGrid,
   Wallet,
@@ -9,7 +12,6 @@ import {
   LineChart as LineChartIcon,
   PieChart as PieChartIcon,
   CalendarDays,
-  Loader2,
   Store,
   X,
   ExternalLink,
@@ -96,7 +98,7 @@ function StatCard({
   gradient: string;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-gray-300">
+    <div className="metric-card group">
       <div
         className={`absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-10 transition-transform duration-500 group-hover:scale-125 ${gradient}`}
       />
@@ -261,33 +263,20 @@ export default function Dashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 size={28} className="animate-spin text-blue-700" />
-      </div>
+      <div className="dashboard-loading" role="status" aria-label="Loading workspace overview"><span className="sr-only">Loading dashboard...</span><div className="skeleton h-9 w-72 mb-3" /><div className="skeleton h-4 w-48 mb-8" /><div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">{[0,1,2,3].map(key => <div key={key} className="skeleton h-32" />)}</div><div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-6"><div className="skeleton h-80" /><div className="skeleton h-80" /></div></div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="page-container">
       <div className="space-y-6">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="overview-intro">
           <div>
-            <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-              KVK Arena Dashboard
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Overview across all business modules
-            </p>
+            <p className="eyebrow">WORKSPACE OVERVIEW</p>
+            <h1>Your arena, at a glance.</h1>
+            <p>{new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Colombo' }).format(new Date())} <span className="mx-2 text-slate-300">/</span> A clear view across all six experiences.</p>
           </div>
-
-          <button
-            type="button"
-            onClick={() => setIsCashierModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-br from-blue-700 to-blue-900 text-white rounded-lg cursor-pointer transition-all duration-300 text-sm font-medium shadow-sm hover:-translate-y-0.5 hover:shadow-lg"
-          >
-            <Store size={16} />
-            Cashiers
-          </button>
+          <div className="overview-actions"><button type="button" className="action-secondary" onClick={loadAll}><RefreshCw size={14} />Refresh</button><button type="button" className="action-primary" onClick={() => setIsCashierModalOpen(true)}><Store size={15} />Open cashiers<ArrowUpRight size={14} /></button></div>
         </div>
 
         {error && (
@@ -298,35 +287,45 @@ export default function Dashboard() {
 
         {/* Stat Cards */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard icon={Users} label="Staff" value={staffCount} gradient="bg-blue-600" />
+          <StatCard icon={Users} label="Team members" value={staffCount} gradient="bg-blue-600" />
           <StatCard
             icon={LayoutGrid}
-            label="Modules"
+            label="Business modules"
             value={MODULE_ORDER.length}
             gradient="bg-violet-600"
           />
           <StatCard
             icon={Wallet}
-            label="Full Revenue (Today)"
+            label="Total revenue today"
             value={formatLkr(todaysRevenueTotal)}
             gradient="bg-emerald-600"
           />
           <StatCard
             icon={Crown}
-            label="Highest Revenue Module"
+            label="Top-performing module"
             value={MODULE_META[highestRevenueModule].label}
             sub={formatLkr(moduleData[highestRevenueModule].todaysRevenue)}
             gradient="bg-amber-500"
           />
         </div>
 
+        <div className="overview-module-grid" aria-label="Business modules">
+          {MODULE_ORDER.map(key => {
+            const meta = MODULE_META[key];
+            const Icon = meta.icon;
+            return <Link key={key} to={'/' + (key === 'carWash' ? 'car-wash' : key) + '/dashboard'} className="overview-module">
+              <div><span style={{ color: meta.color }}><Icon size={19} /></span><ArrowUpRight size={14} /></div><strong>{meta.label}</strong><small>Today's revenue</small><p>{formatLkr(moduleData[key].todaysRevenue)}</p>
+            </Link>;
+          })}
+        </div>
+
         {/* Charts: Bar + Line (combined monthly revenue) */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
+          <div className="surface-panel rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
             <div className="mb-2 flex items-center gap-2">
               <TrendingUp size={16} className="text-blue-700" />
               <h3 className="text-sm font-semibold text-gray-900">
-                Monthly Revenue Comparison (All Modules)
+                Revenue performance
               </h3>
             </div>
             <ResponsiveContainer width="100%" height={280}>
@@ -367,11 +366,11 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
+          <div className="surface-panel rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
             <div className="mb-2 flex items-center gap-2">
               <LineChartIcon size={16} className="text-emerald-700" />
               <h3 className="text-sm font-semibold text-gray-900">
-                Monthly Revenue Trend (All Modules)
+                Revenue trend
               </h3>
             </div>
             <ResponsiveContainer width="100%" height={280}>
@@ -410,7 +409,7 @@ export default function Dashboard() {
 
         {/* Holidays + Pie chart */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
+          <div className="surface-panel rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
             <div className="mb-3 flex items-center gap-2">
               <CalendarDays size={16} className="text-blue-700" />
               <h3 className="text-sm font-semibold text-gray-900">Upcoming Holidays</h3>
@@ -425,7 +424,7 @@ export default function Dashboard() {
                 {holidays.map((holiday) => (
                   <div
                     key={holiday.id}
-                    className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-50/60"
+                    className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 transition-all duration-300 hover:bg-blue-50/60"
                   >
                     <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-lg bg-blue-700 text-white">
                       <span className="text-[10px] font-semibold uppercase leading-none">
@@ -454,7 +453,7 @@ export default function Dashboard() {
             )}
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
+          <div className="surface-panel rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
             <div className="mb-2 flex items-center gap-2">
               <PieChartIcon size={16} className="text-violet-700" />
               <h3 className="text-sm font-semibold text-gray-900">
@@ -535,7 +534,7 @@ export default function Dashboard() {
                       onClick={() => openCashierLink(key)}
                       disabled={!hasLink}
                       title={hasLink ? `Open ${meta.label} cashier` : "Link not configured"}
-                      className="group flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-gray-200 bg-white p-4 text-center transition-all duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                      className="action-secondary group flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-gray-200 bg-white p-4 text-center transition-all duration-300 hover:border-blue-300 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                     >
                       <div
                         className="flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-sm transition-transform duration-300 group-hover:scale-110"

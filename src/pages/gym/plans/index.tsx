@@ -214,11 +214,11 @@ export default function MembershipPlans() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="page-container">
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+            <h1 className="page-heading">
               Membership Plans
             </h1>
             <p className="text-sm text-gray-500 mt-1">
@@ -229,7 +229,7 @@ export default function MembershipPlans() {
           <button
             type="button"
             onClick={openCreateModal}
-            className="flex items-center gap-2 px-3 py-2.5 bg-blue-700 text-white rounded cursor-pointer transition-all duration-300 text-sm hover:-translate-y-0.5 hover:shadow-lg hover:bg-blue-800"
+            className="action-primary flex items-center gap-2 px-3 py-2.5 bg-blue-700 text-white rounded cursor-pointer transition-all duration-300 text-sm hover:shadow-lg hover:bg-blue-800"
           >
             <Plus size={16} />
             New Plan
@@ -237,12 +237,12 @@ export default function MembershipPlans() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm">
-          <div className="flex min-w-[240px] flex-1 items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-sm shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-gray-300">
+          <div className="flex min-w-[240px] flex-1 items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-sm shadow-sm transition-all duration-300 hover:shadow-md hover:border-gray-300">
             <Search size={16} className="text-gray-400" />
             <input
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
-              className="w-full outline-none text-sm"
+              className="field-control w-full outline-none text-sm"
               placeholder="Search by title, description, or features..."
             />
           </div>
@@ -254,7 +254,7 @@ export default function MembershipPlans() {
             <select
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value)}
-              className="rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-700"
+              className="field-control rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-700"
             >
               <option value="all">All</option>
               <option value="1">Active</option>
@@ -281,7 +281,7 @@ export default function MembershipPlans() {
             filteredPlans.map((plan) => (
               <div
                 key={plan.id}
-                className="group relative flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-gray-300"
+                className="surface-panel group relative flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-300"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -407,7 +407,7 @@ export default function MembershipPlans() {
                     onChange={(event) =>
                       setForm((current) => ({ ...current, title: event.target.value }))
                     }
-                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     placeholder="e.g. Gold Monthly"
                   />
                   {formErrors.title && (
@@ -425,7 +425,7 @@ export default function MembershipPlans() {
                       setForm((current) => ({ ...current, description: event.target.value }))
                     }
                     rows={2}
-                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     placeholder="Optional short description"
                   />
                 </div>
@@ -443,7 +443,7 @@ export default function MembershipPlans() {
                       onChange={(event) =>
                         setForm((current) => ({ ...current, price: event.target.value }))
                       }
-                      className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                       placeholder="0.00"
                     />
                     {formErrors.price && (
@@ -466,7 +466,7 @@ export default function MembershipPlans() {
                           durationInDays: event.target.value,
                         }))
                       }
-                      className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                       placeholder="30"
                     />
                     {formErrors.durationInDays && (
@@ -485,7 +485,7 @@ export default function MembershipPlans() {
                         isActive: Number(event.target.value),
                       }))
                     }
-                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   >
                     <option value={1}>Active</option>
                     <option value={2}>Inactive</option>
@@ -502,7 +502,7 @@ export default function MembershipPlans() {
                       setForm((current) => ({ ...current, features: event.target.value }))
                     }
                     rows={2}
-                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     placeholder="Comma separated, e.g. Pool access, Personal trainer, Locker"
                   />
                 </div>
@@ -521,7 +521,7 @@ export default function MembershipPlans() {
                   type="button"
                   disabled={isSaving}
                   onClick={handleSave}
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-60"
+                  className="action-primary inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-60"
                 >
                   {isSaving && <Loader2 size={14} className="animate-spin" />}
                   {formModal.mode === "create" ? "Create Plan" : "Save Changes"}

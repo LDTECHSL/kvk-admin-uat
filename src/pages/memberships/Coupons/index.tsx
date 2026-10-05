@@ -668,7 +668,7 @@ export default function MembershipCoupons() {
                 document.body,
               )}
               
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="page-container">
 
         {/* ===================================================== ALERT ===================================================== */}
 
@@ -694,7 +694,7 @@ export default function MembershipCoupons() {
             </div>
 
             <div className="min-w-0">
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              <h1 className="page-heading">
                 Member Coupons
               </h1>
 
@@ -731,7 +731,7 @@ export default function MembershipCoupons() {
               onClick={() =>
                 navigate("/main/memberships")
               }
-              className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700"
+              className="action-secondary inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700"
             >
               <ArrowLeft size={17} />
               Back to Members
@@ -745,7 +745,7 @@ export default function MembershipCoupons() {
                 void handleFetchCoupons()
               }
               disabled={isLoading}
-              className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-900 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="action-primary inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-900 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <RefreshCcw
                 size={16}
@@ -787,7 +787,7 @@ export default function MembershipCoupons() {
 
         {/* ===================================================== DATA GRID ===================================================== */}
 
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <section className="surface-panel overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
 
           {/* SEARCH */}
 
@@ -807,7 +807,7 @@ export default function MembershipCoupons() {
                   )
                 }
                 placeholder="Search member, phone or coupon..."
-                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                className="field-control h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
               />
             </div>
           </div>
@@ -826,7 +826,7 @@ export default function MembershipCoupons() {
               {/* ============================================= DESKTOP TABLE ============================================= */}
 
               <div className="hidden overflow-x-auto md:block">
-                <table className="w-full min-w-[1150px]">
+                <table className="data-table w-full min-w-[1150px]">
 
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50/80">
@@ -1267,7 +1267,7 @@ function SummaryCard({
   icon: ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="surface-panel flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
 
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-900">
         {icon}
@@ -1610,7 +1610,7 @@ function SmsConfirmationModal({
             type="button"
             onClick={onCancel}
             disabled={isLoading}
-            className="inline-flex h-10 cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+            className="action-secondary inline-flex h-10 cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Cancel
           </button>
@@ -1753,7 +1753,7 @@ function Pagination({
                 ),
               )
             }
-            className="h-9 cursor-pointer rounded-lg border border-slate-200 bg-white px-2 text-sm font-medium text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            className="field-control h-9 cursor-pointer rounded-lg border border-slate-200 bg-white px-2 text-sm font-medium text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           >
             <option value={5}>
               5
@@ -1783,7 +1783,7 @@ function Pagination({
           disabled={
             currentPage === 1
           }
-          className="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="action-secondary inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Previous
         </button>
@@ -1855,7 +1855,7 @@ function Pagination({
             currentPage ===
             totalPages
           }
-          className="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="action-secondary inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:border-blue-900 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Next
         </button>
@@ -1892,7 +1892,7 @@ function ErrorState({
       <button
         type="button"
         onClick={onRetry}
-        className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-blue-900 px-4 text-sm font-semibold text-white transition hover:bg-blue-800"
+        className="action-primary mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-blue-900 px-4 text-sm font-semibold text-white transition hover:bg-blue-800"
       >
         <RefreshCcw size={16} />
         Try Again

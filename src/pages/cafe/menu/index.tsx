@@ -125,21 +125,21 @@ export default function CafeMenu() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="page-container">
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-xl md:text-2xl font-semibold text-gray-900">Menu</h1>
+            <h1 className="page-heading">Menu</h1>
             <p className="text-sm text-gray-500 mt-1">View all cafe menu items</p>
           </div>
 
           <div className="w-full max-w-md">
-            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-3 py-2 text-sm shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-gray-300">
+            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-3 py-2 text-sm shadow-sm transition-all duration-300 hover:shadow-md hover:border-gray-300">
               <Search size={16} className="text-gray-400" />
               <input
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                className="w-full outline-none text-sm"
+                className="field-control w-full outline-none text-sm"
                 placeholder="Search by name, description, or ingredients..."
               />
             </div>
@@ -154,7 +154,7 @@ export default function CafeMenu() {
             <select
               value={categoryFilter}
               onChange={(event) => setCategoryFilter(event.target.value)}
-              className="rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-700"
+              className="field-control rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-700"
             >
               <option value="all">All</option>
               {CATEGORY_OPTIONS.map((option) => (
@@ -172,7 +172,7 @@ export default function CafeMenu() {
             <select
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value)}
-              className="rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-700"
+              className="field-control rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-700"
             >
               <option value="all">All</option>
               <option value="active">Active</option>
@@ -212,7 +212,7 @@ export default function CafeMenu() {
               return (
                 <div
                   key={item.id}
-                  className="group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-gray-300"
+                  className="surface-panel group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-300"
                 >
                   <div className="relative flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-amber-50 to-gray-50">
                     {item.image ? (

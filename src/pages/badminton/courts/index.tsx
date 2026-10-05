@@ -297,21 +297,21 @@ export default function BadmintonCourts() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="page-container">
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-xl md:text-2xl font-semibold text-gray-900">Courts</h1>
+            <h1 className="page-heading">Courts</h1>
             <p className="text-sm text-gray-500 mt-1">Manage the badminton courts</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex min-w-[220px] items-center gap-2 bg-white border border-gray-200 rounded-md px-3 py-2 text-sm shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-gray-300">
+            <div className="flex min-w-[220px] items-center gap-2 bg-white border border-gray-200 rounded-md px-3 py-2 text-sm shadow-sm transition-all duration-300 hover:shadow-md hover:border-gray-300">
               <Search size={16} className="text-gray-400" />
               <input
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                className="w-full outline-none text-sm"
+                className="field-control w-full outline-none text-sm"
                 placeholder="Search by name..."
               />
             </div>
@@ -319,7 +319,7 @@ export default function BadmintonCourts() {
             <button
               type="button"
               onClick={openCreateModal}
-              className="flex items-center gap-2 px-3 py-2.5 bg-blue-700 text-white rounded cursor-pointer transition-all duration-300 text-sm hover:-translate-y-0.5 hover:shadow-lg hover:bg-blue-800"
+              className="action-primary flex items-center gap-2 px-3 py-2.5 bg-blue-700 text-white rounded cursor-pointer transition-all duration-300 text-sm hover:shadow-lg hover:bg-blue-800"
             >
               <Plus size={16} />
               New Court
@@ -349,7 +349,7 @@ export default function BadmintonCourts() {
               return (
                 <div
                   key={court.id}
-                  className="group relative flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-gray-300"
+                  className="surface-panel group relative flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-300"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-3">
@@ -387,7 +387,7 @@ export default function BadmintonCourts() {
         </div>
 
         {/* Slot Configuration */}
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
+        <div className="surface-panel rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
           <div className="flex items-center gap-2">
             <Clock size={16} className="text-blue-700" />
             <h2 className="text-base font-semibold text-gray-900">Slot Configuration</h2>
@@ -402,7 +402,7 @@ export default function BadmintonCourts() {
             <select
               value={slotCourtId}
               onChange={(event) => handleSelectSlotCourt(event.target.value)}
-              className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             >
               <option value="">Select a court...</option>
               {courts.map((court) => (
@@ -445,7 +445,7 @@ export default function BadmintonCourts() {
                         onChange={(event) =>
                           setSlotForm((current) => ({ ...current, startTime: event.target.value }))
                         }
-                        className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                       />
                       {slotFormErrors.startTime && (
                         <p className="mt-1 text-xs text-red-600">{slotFormErrors.startTime}</p>
@@ -462,7 +462,7 @@ export default function BadmintonCourts() {
                         onChange={(event) =>
                           setSlotForm((current) => ({ ...current, endTime: event.target.value }))
                         }
-                        className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                       />
                       {slotFormErrors.endTime && (
                         <p className="mt-1 text-xs text-red-600">{slotFormErrors.endTime}</p>
@@ -484,7 +484,7 @@ export default function BadmintonCourts() {
                             slotDurationMinutes: event.target.value,
                           }))
                         }
-                        className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                       />
                       {slotFormErrors.slotDurationMinutes && (
                         <p className="mt-1 text-xs text-red-600">
@@ -508,7 +508,7 @@ export default function BadmintonCourts() {
                             slotGapMinutes: event.target.value,
                           }))
                         }
-                        className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                        className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                       />
                       {slotFormErrors.slotGapMinutes && (
                         <p className="mt-1 text-xs text-red-600">
@@ -529,7 +529,7 @@ export default function BadmintonCourts() {
                       type="button"
                       disabled={isSavingSlotConfig}
                       onClick={handleSaveSlotConfig}
-                      className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-60"
+                      className="action-primary inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-60"
                     >
                       {isSavingSlotConfig ? (
                         <Loader2 size={14} className="animate-spin" />
@@ -590,7 +590,7 @@ export default function BadmintonCourts() {
                     onChange={(event) =>
                       setForm((current) => ({ ...current, name: event.target.value }))
                     }
-                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     placeholder="e.g. Court 1"
                   />
                   {formErrors.name && (
@@ -610,7 +610,7 @@ export default function BadmintonCourts() {
                     onChange={(event) =>
                       setForm((current) => ({ ...current, pricePerSlot: event.target.value }))
                     }
-                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     placeholder="0.00"
                   />
                   {formErrors.pricePerSlot && (
@@ -631,7 +631,7 @@ export default function BadmintonCourts() {
                           status: Number(event.target.value),
                         }))
                       }
-                      className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     >
                       {STATUS_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -656,7 +656,7 @@ export default function BadmintonCourts() {
                   type="button"
                   disabled={isSaving}
                   onClick={handleSave}
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-60"
+                  className="action-primary inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-60"
                 >
                   {isSaving && <Loader2 size={14} className="animate-spin" />}
                   {formModal.mode === "create" ? "Create Court" : "Save Changes"}
