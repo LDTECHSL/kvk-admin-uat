@@ -51,6 +51,8 @@ const emptyForm: PlanForm = {
 const formatLkr = (amount: number) =>
   `LKR ${amount.toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
+const isDayPass = (title: string) => title.trim().toLowerCase() === "day pass";
+
 export default function MembershipPlans() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -124,6 +126,7 @@ export default function MembershipPlans() {
   };
 
   const openEditModal = (plan: Plan) => {
+    if (isDayPass(plan.title)) return;
     setForm({
       title: plan.title,
       description: plan.description,
@@ -146,6 +149,9 @@ export default function MembershipPlans() {
     const errors: Partial<Record<keyof PlanForm, string>> = {};
 
     if (!form.title.trim()) errors.title = "Title is required.";
+    if (isDayPass(form.title) && form.isActive !== 1) {
+      errors.isActive = "Day Pass must be active.";
+    }
 
     const price = Number(form.price);
     if (form.price.trim() === "" || Number.isNaN(price) || price < 0) {
@@ -196,6 +202,7 @@ export default function MembershipPlans() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
+    if (isDayPass(deleteTarget.title)) return;
 
     setIsDeleting(true);
     setDeleteError("");
@@ -339,20 +346,22 @@ export default function MembershipPlans() {
                 <div className="mt-4 flex items-center justify-end gap-2 border-t border-gray-100 pt-3">
                   <button
                     type="button"
-                    title="Edit"
+                    title={isDayPass(plan.title) ? "Day Pass cannot be edited or deactivated" : "Edit"}
+                    disabled={isDayPass(plan.title)}
                     onClick={() => openEditModal(plan)}
-                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-gray-200 text-gray-600 transition hover:bg-gray-50"
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-gray-200 text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <Pencil size={14} />
                   </button>
                   <button
                     type="button"
-                    title="Delete"
+                    title={isDayPass(plan.title) ? "Day Pass cannot be deleted" : "Delete"}
+                    disabled={isDayPass(plan.title)}
                     onClick={() => {
                       setDeleteError("");
                       setDeleteTarget(plan);
                     }}
-                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-red-200 text-red-700 transition hover:bg-red-50"
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-red-200 text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -405,7 +414,7 @@ export default function MembershipPlans() {
                   <input
                     value={form.title}
                     onChange={(event) =>
-                      setForm((current) => ({ ...current, title: event.target.value }))
+                      setForm((current) => ({ ...current, title: event.target.value, isActive: isDayPass(event.target.value) ? 1 : current.isActive }))
                     }
                     className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     placeholder="e.g. Gold Monthly"
@@ -478,7 +487,8 @@ export default function MembershipPlans() {
                 <div>
                   <label className="mb-1 block text-sm font-medium text-gray-700">Status</label>
                   <select
-                    value={form.isActive}
+                    value={isDayPass(form.title) ? 1 : form.isActive}
+                    disabled={isDayPass(form.title)}
                     onChange={(event) =>
                       setForm((current) => ({
                         ...current,
@@ -490,6 +500,9 @@ export default function MembershipPlans() {
                     <option value={1}>Active</option>
                     <option value={2}>Inactive</option>
                   </select>
+                  {isDayPass(form.title) && (
+                    <p className="mt-1 text-xs text-gray-500">Day Pass stays active and cannot be edited or deleted after creation.</p>
+                  )}
                 </div>
 
                 <div>

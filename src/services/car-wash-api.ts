@@ -37,3 +37,33 @@ export const getCarWashPackages = async () => {
     const response = await axios.get(`${API_URL}car-service/package`, authHeaders());
     return response.data;
 };
+
+export const createCarWashService = async (payload: FormData) => {
+    const response = await axios.post(`${API_URL}car-service/wash-service`, payload, authHeaders());
+    return response.data;
+};
+
+export const updateCarWashService = async (payload: FormData) => {
+    const response = await axios.put(`${API_URL}car-service/wash-service`, payload, authHeaders());
+    return response.data;
+};
+
+export const deleteCarWashService = async (id: string) => {
+    const response = await axios.delete(`${API_URL}car-service/wash-service/${id}`, authHeaders());
+    return response.data;
+};
+
+export const createCarWashPackage = async (payload: FormData) => {
+    const response = await axios.post(`${API_URL}car-service/package`, payload, authHeaders());
+    return response.data;
+};
+
+export const updateCarWashPackage = async (payload: FormData) => {
+    const response = await axios.put(`${API_URL}car-service/package`, payload, authHeaders());
+    return response.data;
+};
+
+export const deleteCarWashPackage = async (id: string) => {
+    const response = await axios.delete(`${API_URL}car-service/package/${id}`, authHeaders());
+    return response.data;
+};

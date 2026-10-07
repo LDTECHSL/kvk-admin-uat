@@ -741,9 +741,7 @@ export default function MembershipCoupons() {
 
             <button
               type="button"
-              onClick={() =>
-                void handleFetchCoupons()
-              }
+              onClick={() => window.location.reload() }
               disabled={isLoading}
               className="action-primary inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl bg-blue-900 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
             >

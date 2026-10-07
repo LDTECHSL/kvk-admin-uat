@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import {
   Search,
@@ -11,8 +11,14 @@ import {
   Eye,
   X,
   Sparkles,
+  Plus,
+  Pencil,
+  Power,
+  Trash2,
 } from "lucide-react";
-import { getCafeMenu } from "@/services/cafe-api";
+import { getCafeMenu, createCafeMenuItem, updateCafeMenuItem, deleteCafeMenuItem } from "@/services/cafe-api";
+import MenuFormModal from "./form";
+import { CATEGORY_OPTIONS, emptyMenuForm, buildMenuPayload, validateMenuForm, type MenuForm, type MenuErrors } from "./form-model";
 
 type MenuItem = {
   id: string;
@@ -27,13 +33,6 @@ type MenuItem = {
   portionSize: number;
   image: string | null;
 };
-
-// The Menu entity has no dedicated "Coffee" category — coffee items are actually filed
-// under MenuCategory.Drinks, so it's labeled "Coffee" here to match the real data.
-const CATEGORY_OPTIONS = [
-  { value: "1", label: "Breakfast" },
-  { value: "4", label: "Coffee" },
-];
 
 const categoryLabel = (category: number) =>
   CATEGORY_OPTIONS.find((option) => Number(option.value) === category)?.label ?? "Other";
@@ -56,6 +55,23 @@ const portionSizeLabel = (size: number) => {
 const formatLkr = (amount: number) =>
   `LKR ${amount.toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
+const formFrom = (item: MenuItem): MenuForm => ({
+  name: item.name, price: String(item.price), category: item.category,
+  description: item.description, facts: item.facts,
+  ingredients: item.ingredients.split(",").map((value) => value.trim()).filter(Boolean),
+  preparationTimeInMinutes: String(item.preparationTimeInMinutes),
+  portionSize: String(item.portionSize), isActive: item.isActive,
+});
+const errorMessage = (error: any) => {
+  const data = error?.response?.data;
+  if (data?.message) return data.message;
+  if (data?.errors) return Object.values(data.errors).flat().join(" ");
+  return error?.message || "The operation failed. Please try again.";
+};
+const requireSuccess = (data: any) => {
+  if (data?.succeeded === false) throw new Error(data.message || "The operation failed.");
+};
+
 export default function CafeMenu() {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -64,6 +80,15 @@ export default function CafeMenu() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [viewItem, setViewItem] = useState<MenuItem | null>(null);
+  const [modal, setModal] = useState<{ item?: MenuItem } | null>(null);
+  const [form, setForm] = useState<MenuForm>(emptyMenuForm);
+  const [image, setImage] = useState<File | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<MenuErrors>({});
+  const [formError, setFormError] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<MenuItem | null>(null);
+  const [deleteError, setDeleteError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     loadMenu();
@@ -104,6 +129,47 @@ export default function CafeMenu() {
     }
   };
 
+  const openForm = (item?: MenuItem) => {
+    setForm(item ? formFrom(item) : { ...emptyMenuForm, ingredients: [] });
+    setImage(null); setFieldErrors({}); setFormError(""); setNotice(""); setModal({ item });
+  };
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!modal || busy) return;
+    setFormError("");
+    const errors = validateMenuForm(form, !!image || !!modal.item?.image);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length) return;
+    setBusy(true);
+    try {
+      const payload = buildMenuPayload(form, modal.item?.id, image);
+      requireSuccess(await (modal.item ? updateCafeMenuItem(payload) : createCafeMenuItem(payload)));
+      setModal(null); setNotice(`Menu item ${modal.item ? "updated" : "created"}.`);
+      await loadMenu();
+    } catch (err) { setFormError(errorMessage(err)); }
+    finally { setBusy(false); }
+  };
+  const toggleStatus = async (item: MenuItem) => {
+    if (busy) return;
+    setBusy(true); setNotice("");
+    try {
+      requireSuccess(await updateCafeMenuItem(buildMenuPayload({ ...formFrom(item), isActive: !item.isActive }, item.id)));
+      setNotice(`${item.name} ${item.isActive ? "deactivated" : "activated"}.`);
+      await loadMenu();
+    } catch (err) { setError(errorMessage(err)); }
+    finally { setBusy(false); }
+  };
+  const remove = async () => {
+    if (!deleteTarget || busy) return;
+    setBusy(true); setDeleteError("");
+    try {
+      requireSuccess(await deleteCafeMenuItem(deleteTarget.id));
+      setDeleteTarget(null); setNotice("Menu item deleted.");
+      await loadMenu();
+    } catch (err) { setDeleteError(errorMessage(err)); }
+    finally { setBusy(false); }
+  };
+
   const normalizedSearchTerm = searchTerm.trim().toLowerCase();
   const filteredItems = items.filter((item) => {
     if (categoryFilter !== "all" && String(item.category) !== categoryFilter) return false;
@@ -130,10 +196,14 @@ export default function CafeMenu() {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="page-heading">Menu</h1>
-            <p className="text-sm text-gray-500 mt-1">View all cafe menu items</p>
+            <p className="text-sm text-gray-500 mt-1">Create and manage café menu items</p>
           </div>
 
-          <div className="w-full max-w-md">
+          <button type="button" disabled={busy} onClick={() => openForm()} className="action-primary inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm disabled:opacity-50 sm:w-auto"><Plus size={16} />Add Menu Item</button>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm">
+          <div className="w-full sm:min-w-64 sm:flex-1">
             <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-3 py-2 text-sm shadow-sm transition-all duration-300 hover:shadow-md hover:border-gray-300">
               <Search size={16} className="text-gray-400" />
               <input
@@ -144,9 +214,6 @@ export default function CafeMenu() {
               />
             </div>
           </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm">
           <div className="flex items-center gap-2">
             <label className="text-xs font-medium uppercase tracking-wide text-gray-500">
               Category
@@ -191,6 +258,7 @@ export default function CafeMenu() {
           )}
         </div>
 
+        {notice && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">{notice}</p>}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {isLoading ? (
             <div className="col-span-full flex items-center justify-center py-16 text-sm text-gray-500">
@@ -285,6 +353,11 @@ export default function CafeMenu() {
                         Ingredients: {item.ingredients}
                       </p>
                     )}
+                    <div className="mt-auto flex flex-wrap justify-end gap-2 pt-4">
+                      <button type="button" disabled={busy} onClick={() => openForm(item)} className="action-secondary inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm disabled:opacity-50"><Pencil size={14} />Edit</button>
+                      <button type="button" disabled={busy} onClick={() => void toggleStatus(item)} className="action-secondary inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm disabled:opacity-50"><Power size={14} />{item.isActive ? "Deactivate" : "Activate"}</button>
+                      <button type="button" disabled={busy} onClick={() => { setDeleteTarget(item); setDeleteError(""); setNotice(""); }} className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2 py-2 text-sm text-red-700 disabled:opacity-50"><Trash2 size={14} />Delete</button>
+                    </div>
                   </div>
                 </div>
               );
@@ -293,6 +366,19 @@ export default function CafeMenu() {
         </div>
       </div>
 
+      {modal && <MenuFormModal form={form} errors={fieldErrors} error={formError} image={image}
+        existingImage={modal.item?.image} editing={!!modal.item} busy={busy}
+        onChange={(values) => { setForm(values); setFieldErrors({}); }}
+        onImage={(file) => { setImage(file); setFieldErrors((errors) => ({ ...errors, image: undefined })); }}
+        onClose={() => { if (!busy) setModal(null); }} onSubmit={submit} />}
+      {deleteTarget && createPortal(<div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/60 p-4">
+        <div role="dialog" aria-modal="true" aria-labelledby="cafe-delete-title" className="w-full max-w-sm space-y-4 rounded-2xl bg-white p-6 shadow-xl">
+          <h2 id="cafe-delete-title" className="text-lg font-semibold">Delete Menu Item</h2><p className="text-sm text-gray-600">Permanently delete “{deleteTarget.name}”? This cannot be undone.</p>
+          {deleteError && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{deleteError}</p>}
+          <div className="flex justify-end gap-3"><button type="button" disabled={busy} onClick={() => setDeleteTarget(null)} className="action-secondary rounded-lg px-4 py-2 text-sm">Cancel</button>
+            <button type="button" disabled={busy} onClick={() => void remove()} className="inline-flex items-center gap-2 rounded-lg bg-red-700 px-4 py-2 text-sm text-white disabled:opacity-50">{busy && <Loader2 size={16} className="animate-spin" />}Delete</button></div>
+        </div>
+      </div>, document.body)}
       {viewItem &&
         createPortal(
           <div

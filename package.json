@@ -4,6 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "test:cafe-menu": "node --test tests/cafe-menu.test.cjs",
+    "test:carwash-form": "node --test tests/carwash-form.test.cjs",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",

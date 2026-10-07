@@ -32,3 +32,18 @@ export const getCafeMenu = async () => {
     const response = await axios.get(`${API_URL}cafe/menu`, authHeaders());
     return response.data;
 };
+
+export const createCafeMenuItem = async (payload: FormData) => {
+    const response = await axios.post(`${API_URL}cafe/menu`, payload, authHeaders());
+    return response.data;
+};
+
+export const updateCafeMenuItem = async (payload: FormData) => {
+    const response = await axios.put(`${API_URL}cafe/menu`, payload, authHeaders());
+    return response.data;
+};
+
+export const deleteCafeMenuItem = async (id: string) => {
+    const response = await axios.delete(`${API_URL}cafe/menu/${id}`, authHeaders());
+    return response.data;
+};
