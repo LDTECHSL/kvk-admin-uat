@@ -1,3 +1,5 @@
+import { notifyValidation } from "@/lib/notifications";
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { ImageOff, Loader2, Pencil, Plus, Power, Search, Trash2 } from "lucide-react";
@@ -54,17 +56,17 @@ export default function CarWashCatalog({ kind }: { kind: "services" | "packages"
   const [items, setItems] = useState<Item[]>([]);
   const [services, setServices] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
+  const [error, setError] = useFeedbackState<string>("", "error");
+  const [notice, setNotice] = useFeedbackState<string>("", "success");
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [modal, setModal] = useState<{ item?: Item } | null>(null);
   const [form, setForm] = useState<CatalogForm>(emptyForm);
   const [image, setImage] = useState<File | null>(null);
-  const [formError, setFormError] = useState("");
+  const [formError, setFormError] = useFeedbackState<string>("", "error");
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
   const [deleteTarget, setDeleteTarget] = useState<Item | null>(null);
-  const [deleteError, setDeleteError] = useState("");
+  const [deleteError, setDeleteError] = useFeedbackState<string>("", "error");
   const [busy, setBusy] = useState(false);
 
   const load = async () => {
@@ -112,6 +114,7 @@ export default function CarWashCatalog({ kind }: { kind: "services" | "packages"
       .reduce((total, service) => total + service.price, 0);
     const errors = validateCatalogForm(form, isPackage, regularTotal, !modal.item, !!image);
     setFieldErrors(errors);
+    notifyValidation(errors);
     if (Object.keys(errors).length) return;
     setBusy(true);
     try {

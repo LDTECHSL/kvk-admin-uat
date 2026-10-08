@@ -1,3 +1,4 @@
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { Check, ImagePlus, Loader2, Pencil, Plus, Search, Trash2, UploadCloud, X } from "lucide-react";
@@ -34,7 +35,7 @@ export default function CatalogFormModal({
   const fileInput = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState("");
   const [dragging, setDragging] = useState(false);
-  const [imageError, setImageError] = useState("");
+  const [imageError, setImageError] = useFeedbackState<string>("", "error");
   const [serviceSearch, setServiceSearch] = useState("");
   useEffect(() => {
     if (!image) { setPreview(""); return; }

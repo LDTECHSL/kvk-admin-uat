@@ -1,3 +1,4 @@
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useState, type FormEvent } from "react";
 import { CheckCircle2, Clock, Loader2, Save } from "lucide-react";
 import {
@@ -34,8 +35,8 @@ export default function SalonSettings() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [error, setError] = useFeedbackState<string>("", "error");
+  const [successMessage, setSuccessMessage] = useFeedbackState<string>("", "success");
 
   const loadBusinessHours = async () => {
     try {

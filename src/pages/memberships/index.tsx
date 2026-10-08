@@ -1,3 +1,4 @@
+import { notify } from "@/lib/notifications";
 import { Alert } from "@/components/ui/alert";
 import { getEnv } from "@/env";
 import { generateCouponCodes } from "@/services/auth-api";
@@ -239,6 +240,7 @@ export default function Memberships() {
       setMembers(Array.isArray(res) ? res : []);
     } catch (error) {
       console.error("Failed to fetch members:", error);
+      notify.error("Failed to load members. Please try again.");
       setMembers([]);
     } finally {
       setIsLoading(false);
@@ -251,7 +253,7 @@ export default function Memberships() {
 
   const handleWhatsApp = (member: Member) => {
     if (!member.phone) {
-      alert("Phone number not available.");
+      notify.error("Phone number not available.");
       return;
     }
 

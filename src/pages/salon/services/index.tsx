@@ -1,3 +1,6 @@
+import { notify } from "@/lib/notifications";
+import { notifyValidation } from "@/lib/notifications";
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -55,7 +58,7 @@ const formatLkr = (amount: number) =>
 export default function SalonServices() {
   const [services, setServices] = useState<SalonServiceItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useFeedbackState<string>("", "error");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -66,14 +69,14 @@ export default function SalonServices() {
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof ServiceForm, string>>>({});
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageError, setImageError] = useState("");
+  const [imageError, setImageError] = useFeedbackState<string>("", "error");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState("");
+  const [saveError, setSaveError] = useFeedbackState<string>("", "error");
 
   const [deleteTarget, setDeleteTarget] = useState<SalonServiceItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState("");
+  const [deleteError, setDeleteError] = useFeedbackState<string>("", "error");
 
   useEffect(() => {
     loadServices();
@@ -193,6 +196,7 @@ export default function SalonServices() {
     }
 
     setFormErrors(errors);
+    notifyValidation(errors);
     return valid;
   };
 
@@ -219,6 +223,7 @@ export default function SalonServices() {
         await updateSalonService(formModal.service.id, formData);
       }
 
+      notify.success(`Service ${formModal.mode === "create" ? "created" : "updated"} successfully.`);
       await loadServices();
       setFormModal(null);
     } catch (err: any) {
@@ -238,6 +243,7 @@ export default function SalonServices() {
 
     try {
       await deleteSalonService(deleteTarget.id);
+      notify.success("Service deleted successfully.");
       await loadServices();
       setDeleteTarget(null);
     } catch (err: any) {

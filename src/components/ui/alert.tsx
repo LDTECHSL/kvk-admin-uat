@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { createPortal } from 'react-dom'
 import { CheckCircle, AlertTriangle, XCircle, X } from 'lucide-react'
+import { notificationStore, type Notification } from '@/lib/notifications'
 
 export type AlertVariant = 'success' | 'error' | 'warning' | 'info'
 
@@ -22,7 +23,7 @@ const variantStyles: Record<AlertVariant, { bg: string; ring: string; icon: Reac
   info: { bg: 'bg-blue-50 border-blue-100', ring: 'ring-blue-900', icon: <CheckCircle className="w-5 h-5 text-blue-900" /> },
 }
 
-export function Alert({
+function AlertCard({
   variant = 'info',
   title,
   description,
@@ -60,8 +61,8 @@ export function Alert({
     setClosing(true)
   }
 
-  return createPortal(
-    <div className="fixed right-4 top-4 w-[calc(100vw-2rem)] max-w-sm pointer-events-none sm:right-6 sm:top-6" style={{ zIndex: 1000000 }} role="presentation">
+  return (
+    <div className="relative w-full pointer-events-none" role="presentation">
       <style>
         {`@keyframes alert-slide-in {
           0% { opacity: 0; transform: translateX(24px) scale(0.98); }
@@ -74,9 +75,9 @@ export function Alert({
       </style>
 
       <div
-        role="alert"
+        role={variant === 'error' || variant === 'warning' ? 'alert' : 'status'}
         className={`pointer-events-auto rounded-2xl border ${styles.bg} shadow-2xl shadow-gray-950/10 backdrop-blur-xl ring-1 ${styles.ring} overflow-hidden ${className}`}
-        style={{ animation: closing ? 'alert-slide-out 240ms ease-in forwards' : 'alert-slide-in 240ms ease-out' }}
+        style={{ animation: closing ? `alert-slide-out ${exitDurationMs}ms ease-in forwards` : 'alert-slide-in 240ms ease-out' }}
       >
         <div className="absolute inset-0 bg-linear-to-r from-white/40 via-transparent to-transparent" />
         <div className="relative flex items-start gap-3 p-4 md:p-4">
@@ -100,9 +101,33 @@ export function Alert({
           )}
         </div>
       </div>
-    </div>,
-    document.body,
+    </div>
   )
+}
+
+function NotificationCard({ notification }: { notification: Notification }) {
+  const close = React.useCallback(() => notificationStore.dismiss(notification.id), [notification.id])
+  return <AlertCard {...notification} autoCloseMs={notification.autoCloseMs ?? (notification.variant === 'error' ? 8000 : 5000)} onClose={close} />
+}
+
+export function AlertHost() {
+  const notifications = React.useSyncExternalStore(notificationStore.subscribe, notificationStore.getSnapshot)
+  return createPortal(
+    <section aria-label="Notifications" className="fixed right-4 top-4 flex max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-sm flex-col gap-3 overflow-y-auto pointer-events-none sm:right-6 sm:top-6" style={{ zIndex: 2147483647 }}>
+      {notifications.map(notification => <NotificationCard key={notification.id} notification={notification} />)}
+    </section>, document.body,
+  )
+}
+
+// Existing page alerts use the same app-wide host as new notifications.
+export function Alert(props: AlertProps) {
+  const closeRef = React.useRef(props.onClose)
+  React.useEffect(() => { closeRef.current = props.onClose }, [props.onClose])
+  const { variant = 'info', title, description, dismissible, autoCloseMs, exitDurationMs, className } = props
+  React.useEffect(() => {
+    notificationStore.show({ variant, title, description, dismissible, autoCloseMs, exitDurationMs, className, onClose: () => closeRef.current?.() })
+  }, [variant, title, description, dismissible, autoCloseMs, exitDurationMs, className])
+  return null
 }
 
 export default Alert

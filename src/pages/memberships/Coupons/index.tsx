@@ -1,3 +1,4 @@
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import Alert from "@/components/ui/alert";
 import { getCouponCodes } from "@/services/auth-api";
 import { sendBulkSms, sendSingleSms } from "@/services/members-api";
@@ -149,7 +150,7 @@ export default function MembershipCoupons() {
     useState(true);
 
   const [errorMessage, setErrorMessage] =
-    useState<string | null>(null);
+    useFeedbackState<string | null>(null, "error");
 
   const [copiedCoupon, setCopiedCoupon] =
     useState<string | null>(null);

@@ -1,3 +1,6 @@
+import { notify } from "@/lib/notifications";
+import { notifyValidation } from "@/lib/notifications";
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -56,7 +59,7 @@ const isDayPass = (title: string) => title.trim().toLowerCase() === "day pass";
 export default function MembershipPlans() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useFeedbackState<string>("", "error");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -66,11 +69,11 @@ export default function MembershipPlans() {
   const [form, setForm] = useState<PlanForm>(emptyForm);
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof PlanForm, string>>>({});
   const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState("");
+  const [saveError, setSaveError] = useFeedbackState<string>("", "error");
 
   const [deleteTarget, setDeleteTarget] = useState<Plan | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState("");
+  const [deleteError, setDeleteError] = useFeedbackState<string>("", "error");
 
   useEffect(() => {
     loadPlans();
@@ -164,6 +167,7 @@ export default function MembershipPlans() {
     }
 
     setFormErrors(errors);
+    notifyValidation(errors);
     return Object.keys(errors).length === 0;
   };
 
@@ -189,6 +193,7 @@ export default function MembershipPlans() {
         await updateMembershipPlan(formModal.plan.id, payload);
       }
 
+      notify.success(`Membership plan ${formModal.mode === "create" ? "created" : "updated"} successfully.`);
       await loadPlans();
       setFormModal(null);
     } catch (err: any) {
@@ -209,6 +214,7 @@ export default function MembershipPlans() {
 
     try {
       await deleteMembershipPlan(deleteTarget.id);
+      notify.success("Membership plan deleted successfully.");
       await loadPlans();
       setDeleteTarget(null);
     } catch (err: any) {

@@ -1,3 +1,5 @@
+import { notifyValidation } from "@/lib/notifications";
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -75,7 +77,7 @@ const requireSuccess = (data: any) => {
 export default function CafeMenu() {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useFeedbackState<string>("", "error");
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -84,11 +86,11 @@ export default function CafeMenu() {
   const [form, setForm] = useState<MenuForm>(emptyMenuForm);
   const [image, setImage] = useState<File | null>(null);
   const [fieldErrors, setFieldErrors] = useState<MenuErrors>({});
-  const [formError, setFormError] = useState("");
+  const [formError, setFormError] = useFeedbackState<string>("", "error");
   const [deleteTarget, setDeleteTarget] = useState<MenuItem | null>(null);
-  const [deleteError, setDeleteError] = useState("");
+  const [deleteError, setDeleteError] = useFeedbackState<string>("", "error");
   const [busy, setBusy] = useState(false);
-  const [notice, setNotice] = useState("");
+  const [notice, setNotice] = useFeedbackState<string>("", "success");
 
   useEffect(() => {
     loadMenu();
@@ -139,6 +141,7 @@ export default function CafeMenu() {
     setFormError("");
     const errors = validateMenuForm(form, !!image || !!modal.item?.image);
     setFieldErrors(errors);
+    notifyValidation(errors);
     if (Object.keys(errors).length) return;
     setBusy(true);
     try {

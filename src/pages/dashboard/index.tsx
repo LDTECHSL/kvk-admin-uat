@@ -1,3 +1,4 @@
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -122,7 +123,7 @@ function StatCard({
 
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useFeedbackState<string>("", "error");
 
   const [staffCount, setStaffCount] = useState(0);
   const [moduleData, setModuleData] = useState<Record<ModuleKey, ModuleData>>({

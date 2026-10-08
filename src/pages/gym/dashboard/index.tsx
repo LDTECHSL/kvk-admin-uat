@@ -1,3 +1,5 @@
+import { notify } from "@/lib/notifications";
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
@@ -166,8 +168,8 @@ export default function GymDashboard() {
   const navigate = useNavigate();
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [actionError, setActionError] = useState("");
+  const [error, setError] = useFeedbackState<string>("", "error");
+  const [actionError, setActionError] = useFeedbackState<string>("", "error");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [confirmModal, setConfirmModal] = useState<
     { type: "reactivate" | "delete"; kind: "Member" | "Trainer"; person: PersonSummary } | null
@@ -223,6 +225,7 @@ export default function GymDashboard() {
     setBusyId(id);
     try {
       await reactivateMember(id);
+      notify.success("Member reactivated successfully.");
       await loadDashboard();
     } catch {
       setActionError("Failed to reactivate. Please try again.");
@@ -237,6 +240,7 @@ export default function GymDashboard() {
     setBusyId(id);
     try {
       await permanentlyDeleteMember(id);
+      notify.success("Member deleted successfully.");
       await loadDashboard();
     } catch {
       setActionError("Failed to permanently delete. Please try again.");

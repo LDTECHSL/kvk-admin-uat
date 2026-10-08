@@ -1,3 +1,4 @@
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useState } from "react";
 import { Download, Search } from "lucide-react";
 import jsPDF from "jspdf";
@@ -44,7 +45,7 @@ export default function CafePayments() {
   const [searchTerm, setSearchTerm] = useState("");
   const [payments, setPayments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useFeedbackState<string>("", "error");
 
   const formatLkr = (amount: number) =>
     `LKR ${amount.toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

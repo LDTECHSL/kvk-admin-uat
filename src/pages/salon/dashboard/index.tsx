@@ -1,3 +1,4 @@
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useState } from "react";
 import {
   Users,
@@ -132,11 +133,11 @@ function StatCard({
 export default function SalonDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useFeedbackState<string>("", "error");
 
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoadingAppointments, setIsLoadingAppointments] = useState(false);
-  const [appointmentsError, setAppointmentsError] = useState("");
+  const [appointmentsError, setAppointmentsError] = useFeedbackState<string>("", "error");
 
   useEffect(() => {
     loadDashboard();

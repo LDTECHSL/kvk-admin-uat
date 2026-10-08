@@ -1,3 +1,4 @@
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useState } from "react";
 import {
   Download,
@@ -17,7 +18,7 @@ export default function GymPayments() {
   const [searchTerm, setSearchTerm] = useState("");
   const [payments, setPayments] = useState<any[]>([]);
   const [isLoadingPayments, setIsLoadingPayments] = useState(false);
-  const [paymentsError, setPaymentsError] = useState("");
+  const [paymentsError, setPaymentsError] = useFeedbackState<string>("", "error");
 
   const exportPdf = () => {
     const doc = new jsPDF();

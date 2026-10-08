@@ -1,3 +1,5 @@
+import { notify } from "@/lib/notifications";
+import { notifyValidation } from "@/lib/notifications";
 import { Alert } from "@/components/ui/alert";
 import { assignModules, createStaffMember, getStaffMembers } from "@/services/staff-api";
 import {
@@ -135,6 +137,7 @@ export default function Staff() {
       const response = await getStaffMembers();
       setStaffMembers(response);
     } catch (error) {
+      notify.error("Failed to load staff. Please try again.");
       setStaffMembers([]);
     } finally {
       setIsLoading(false);
@@ -235,6 +238,7 @@ export default function Staff() {
     }
 
     setFormErrors(errors);
+    notifyValidation(errors);
 
     return Object.keys(errors).length === 0;
   };

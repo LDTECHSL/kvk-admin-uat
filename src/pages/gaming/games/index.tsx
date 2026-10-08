@@ -1,3 +1,6 @@
+import { notify } from "@/lib/notifications";
+import { notifyValidation } from "@/lib/notifications";
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -39,7 +42,7 @@ export default function GamingGames() {
   const [tab, setTab] = useState<"active" | "inactive">("active");
   const [games, setGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useFeedbackState<string>("", "error");
   const [searchTerm, setSearchTerm] = useState("");
 
   const [formModal, setFormModal] = useState<{ mode: "create" | "edit"; game?: Game } | null>(
@@ -49,17 +52,17 @@ export default function GamingGames() {
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof GameForm, string>>>({});
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageError, setImageError] = useState("");
+  const [imageError, setImageError] = useFeedbackState<string>("", "error");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState("");
+  const [saveError, setSaveError] = useFeedbackState<string>("", "error");
 
   const [confirmTarget, setConfirmTarget] = useState<{
     type: "deactivate" | "activate";
     game: Game;
   } | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [actionError, setActionError] = useState("");
+  const [actionError, setActionError] = useFeedbackState<string>("", "error");
 
   useEffect(() => {
     loadGames();
@@ -154,6 +157,7 @@ export default function GamingGames() {
     }
 
     setFormErrors(errors);
+    notifyValidation(errors);
     return valid;
   };
 
@@ -177,6 +181,7 @@ export default function GamingGames() {
         await updateGame(formData);
       }
 
+      notify.success(`Game ${formModal.mode === "create" ? "created" : "updated"} successfully.`);
       await loadGames();
       setFormModal(null);
     } catch (err: any) {
@@ -200,6 +205,7 @@ export default function GamingGames() {
       } else {
         await activateGame(confirmTarget.game.id);
       }
+      notify.success(`Game ${confirmTarget.type === "deactivate" ? "deactivated" : "activated"} successfully.`);
       await loadGames();
     } catch {
       setActionError(

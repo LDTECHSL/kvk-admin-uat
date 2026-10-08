@@ -1,3 +1,6 @@
+import { notify } from "@/lib/notifications";
+import { notifyValidation } from "@/lib/notifications";
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -98,7 +101,7 @@ export default function Holidays() {
 
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useFeedbackState<string>("", "error");
 
   const [formModal, setFormModal] = useState<{ mode: "create" | "edit"; holiday?: Holiday } | null>(
     null,
@@ -106,11 +109,11 @@ export default function Holidays() {
   const [form, setForm] = useState<FormState>(emptyForm(dateKey(today)));
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState("");
+  const [saveError, setSaveError] = useFeedbackState<string>("", "error");
 
   const [deleteTarget, setDeleteTarget] = useState<Holiday | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState("");
+  const [deleteError, setDeleteError] = useFeedbackState<string>("", "error");
 
   useEffect(() => {
     loadHolidays(viewYear);
@@ -238,6 +241,7 @@ export default function Holidays() {
     }
 
     setFormErrors(errors);
+    notifyValidation(errors);
     return Object.keys(errors).length === 0;
   };
 
@@ -276,6 +280,7 @@ export default function Holidays() {
         });
       }
 
+      notify.success(`Holiday ${formModal.mode === "create" ? "created" : "updated"} successfully.`);
       await loadHolidays(viewYear);
       setFormModal(null);
     } catch (err: any) {
@@ -295,6 +300,7 @@ export default function Holidays() {
 
     try {
       await deleteHoliday(deleteTarget.id);
+      notify.success("Holiday deleted successfully.");
       await loadHolidays(viewYear);
       setDeleteTarget(null);
       setFormModal(null);

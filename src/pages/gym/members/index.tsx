@@ -1,6 +1,9 @@
+import { notify } from "@/lib/notifications";
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Search, Eye, RotateCcw, Trash2, X, AlertTriangle, Loader2 } from "lucide-react";
+import { Search, Eye, RotateCcw, Trash2, X, AlertTriangle, Loader2, UserRoundCheck } from "lucide-react";
+import AssignTrainerModal from "./assign-trainer-modal";
 import {
   getMembers,
   reactivateMember,
@@ -52,9 +55,11 @@ export default function GymMembers() {
   const [paymentFilter, setPaymentFilter] = useState("all");
   const [members, setMembers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useFeedbackState<string>("", "error");
   const [viewMember, setViewMember] = useState<any | null>(null);
-  const [actionError, setActionError] = useState("");
+  const [assignMember, setAssignMember] = useState<any | null>(null);
+  const [notice, setNotice] = useFeedbackState<string>("", "success");
+  const [actionError, setActionError] = useFeedbackState<string>("", "error");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [confirmModal, setConfirmModal] = useState<
     { type: "reactivate" | "delete"; member: any } | null
@@ -103,6 +108,7 @@ export default function GymMembers() {
               membershipPlanPrice: member.membershipPlanPrice ?? 0,
               paymentStatus: member.paymentStatus ?? 0,
               assignedTrainer: member.assignedTrainer ?? "",
+              trainerId: member.trainerId ?? null,
               rewardPoints: member.rewardPoints ?? 0,
               isDeleted: !!member.isDeleted,
               deletedAt: member.deletedAt ?? null,
@@ -174,6 +180,7 @@ export default function GymMembers() {
     setBusyId(id);
     try {
       await reactivateMember(id);
+      notify.success("Member reactivated successfully.");
       await loadMembers();
     } catch {
       setActionError("Failed to reactivate member.");
@@ -188,6 +195,7 @@ export default function GymMembers() {
     setBusyId(id);
     try {
       await permanentlyDeleteMember(id);
+      notify.success("Member deleted successfully.");
       await loadMembers();
     } catch {
       setActionError("Failed to permanently delete member.");
@@ -228,6 +236,7 @@ export default function GymMembers() {
             {actionError}
           </div>
         )}
+        {notice && <p role="status" className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{notice}</p>}
 
         <div className="flex items-center gap-2">
           <button
@@ -329,6 +338,7 @@ export default function GymMembers() {
                     <th className="py-2 px-3">MEMBER</th>
                     <th className="py-2 px-3">MEMBERSHIP NO</th>
                     <th className="py-2 px-3">PLAN</th>
+                    <th className="py-2 px-3">TRAINER</th>
                     <th className="py-2 px-3">PAYMENT</th>
                     <th className="py-2 px-3">STATUS</th>
                     <th className="py-2 px-3">ACTIONS</th>
@@ -337,19 +347,19 @@ export default function GymMembers() {
                 <tbody>
                   {isLoading ? (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-sm text-gray-500">
+                      <td colSpan={7} className="py-8 text-center text-sm text-gray-500">
                         Loading members...
                       </td>
                     </tr>
                   ) : error ? (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-sm text-red-600">
+                      <td colSpan={7} className="py-8 text-center text-sm text-red-600">
                         {error}
                       </td>
                     </tr>
                   ) : pageItems.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-sm text-gray-500">
+                      <td colSpan={7} className="py-8 text-center text-sm text-gray-500">
                         No members found.
                       </td>
                     </tr>
@@ -378,6 +388,7 @@ export default function GymMembers() {
                         <td className="py-2 px-3 align-top text-gray-700">
                           {member.membershipPlanTitle || "-"}
                         </td>
+                        <td className="py-2 px-3 align-top text-gray-700">{member.assignedTrainer || "Not assigned"}</td>
                         <td className="py-2 px-3 align-top">
                           <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs">
                             {paymentStatusLabel(member.paymentStatus)}
@@ -400,6 +411,13 @@ export default function GymMembers() {
                             >
                               <Eye size={14} />
                             </button>
+
+                            {!member.isDeleted && <button
+                              type="button"
+                              title="Assign Trainer"
+                              onClick={() => { setAssignMember(member); setNotice(""); setActionError(""); }}
+                              className="inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border border-blue-200 px-2 text-xs font-medium text-blue-900 hover:bg-blue-50"
+                            ><UserRoundCheck size={14} />Assign Trainer</button>}
 
                             {member.isDeleted && (
                               <>
@@ -483,6 +501,15 @@ export default function GymMembers() {
           </div>
         </div>
       </div>
+
+      {assignMember && <AssignTrainerModal member={assignMember} onClose={() => setAssignMember(null)} onAssigned={(trainer) => {
+        setMembers((current) => current.map((member) => member.id === assignMember.id
+          ? { ...member, trainerId: trainer.id, assignedTrainer: trainer.name } : member));
+        setViewMember((current: any) => current?.id === assignMember.id ? { ...current, trainerId: trainer.id, assignedTrainer: trainer.name } : current);
+        setNotice(`${trainer.name} assigned to ${assignMember.name}.`);
+        setAssignMember(null);
+        void loadMembers(true);
+      }} />}
 
       {viewMember && createPortal(
         <div

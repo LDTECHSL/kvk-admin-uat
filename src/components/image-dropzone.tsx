@@ -1,3 +1,4 @@
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useRef, useState } from "react";
 import { ImagePlus, UploadCloud } from "lucide-react";
 
@@ -12,7 +13,7 @@ export default function ImageDropzone({ image, existingImage, error, disabled, o
   const input = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState("");
   const [dragging, setDragging] = useState(false);
-  const [uploadError, setUploadError] = useState("");
+  const [uploadError, setUploadError] = useFeedbackState<string>("", "error");
   useEffect(() => {
     if (!image) { setPreview(""); return; }
     const url = URL.createObjectURL(image);

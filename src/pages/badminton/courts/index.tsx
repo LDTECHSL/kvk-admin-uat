@@ -1,3 +1,6 @@
+import { notify } from "@/lib/notifications";
+import { notifyValidation } from "@/lib/notifications";
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -78,7 +81,7 @@ const defaultSlotConfigForm: SlotConfigForm = {
 export default function BadmintonCourts() {
   const [courts, setCourts] = useState<Court[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useFeedbackState<string>("", "error");
   const [searchTerm, setSearchTerm] = useState("");
 
   const [formModal, setFormModal] = useState<{ mode: "create" | "edit"; court?: Court } | null>(
@@ -87,7 +90,7 @@ export default function BadmintonCourts() {
   const [form, setForm] = useState<CourtForm>(emptyForm);
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof CourtForm, string>>>({});
   const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState("");
+  const [saveError, setSaveError] = useFeedbackState<string>("", "error");
 
   const [slotCourtId, setSlotCourtId] = useState("");
   const [slotConfigId, setSlotConfigId] = useState<string | null>(null);
@@ -95,8 +98,8 @@ export default function BadmintonCourts() {
   const [slotFormErrors, setSlotFormErrors] = useState<Partial<Record<keyof SlotConfigForm, string>>>({});
   const [isLoadingSlotConfig, setIsLoadingSlotConfig] = useState(false);
   const [isSavingSlotConfig, setIsSavingSlotConfig] = useState(false);
-  const [slotConfigError, setSlotConfigError] = useState("");
-  const [slotConfigSuccess, setSlotConfigSuccess] = useState("");
+  const [slotConfigError, setSlotConfigError] = useFeedbackState<string>("", "error");
+  const [slotConfigSuccess, setSlotConfigSuccess] = useFeedbackState<string>("", "success");
 
   useEffect(() => {
     loadCourts();
@@ -169,6 +172,7 @@ export default function BadmintonCourts() {
     }
 
     setFormErrors(errors);
+    notifyValidation(errors);
     return Object.keys(errors).length === 0;
   };
 
@@ -192,6 +196,7 @@ export default function BadmintonCourts() {
         });
       }
 
+      notify.success(`Court ${formModal.mode === "create" ? "created" : "updated"} successfully.`);
       await loadCourts();
       setFormModal(null);
     } catch (err: any) {
@@ -233,8 +238,12 @@ export default function BadmintonCourts() {
         setSlotConfigId(null);
         setSlotForm(defaultSlotConfigForm);
       }
-    } catch {
-      // No configuration exists yet for this court — fall back to the create form.
+    } catch (error) {
+      // A missing configuration is expected for a new court; other failures
+      // must be reported instead of being silently treated as missing data.
+      if ((error as { response?: { status?: number } })?.response?.status !== 404) {
+        setSlotConfigError("Failed to load slot configuration. Please try again.");
+      }
       setSlotConfigId(null);
       setSlotForm(defaultSlotConfigForm);
     } finally {
@@ -259,6 +268,7 @@ export default function BadmintonCourts() {
     }
 
     setSlotFormErrors(errors);
+    notifyValidation(errors);
     return Object.keys(errors).length === 0;
   };
 

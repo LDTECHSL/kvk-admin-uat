@@ -26,6 +26,20 @@ export const getMembers = async (includeDeleted = false) => {
     return response.data;
 };
 
+export const getGymTrainers = async () => {
+    const response = await axios.get(`${MEMBERS_API_URL}trainers`, authHeaders());
+    return response.data;
+};
+
+export const assignTrainer = async (memberId: string, trainerId: string) => {
+    const response = await axios.post(
+        `${MEMBERS_API_URL}${memberId}/assign-trainer`,
+        { trainerId },
+        authHeaders(),
+    );
+    return response.data;
+};
+
 export const reactivateMember = async (id: string) => {
     const response = await axios.post(
         `${MEMBERS_API_URL}${id}/reverse-soft-delete`,

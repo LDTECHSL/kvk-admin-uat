@@ -1,3 +1,4 @@
+import { notify } from "@/lib/notifications";
 import { ADMIN_ACCESS_ERROR } from '@/lib/admin-access';
 import { useState, type FormEvent } from 'react';
 import { ArrowRight, Eye, EyeOff, Layers3, LockKeyhole, ShieldCheck, Loader2 } from 'lucide-react';
@@ -17,13 +18,14 @@ export default function Login() {
     try {
       const admin = await login(username, password);
       localStorage.setItem('admin', JSON.stringify(admin));
+      notify.success('Signed in successfully.');
       navigate('/main/dashboard');
     } catch (error) {
       setError((error as { response?: { status?: number } })?.response?.status === 403 || (error instanceof Error && error.message === ADMIN_ACCESS_ERROR) ? ADMIN_ACCESS_ERROR : 'Unable to sign in. Check your username and password and try again.');
     } finally { setLoading(false); }
   };
   return <main className="login-page">
-    {error && <Alert variant="error" title="Unable to sign in" description={error} autoCloseMs={0} onClose={() => setError('')} />}
+    {error && <Alert variant="error" title="Unable to sign in" description={error} onClose={() => setError('')} />}
     <section className="login-story" aria-label="KVK Arena management suite">
       <div className="workspace-brand"><span className="brand-mark"><Layers3 size={22} /></span><span><strong>KVK<span className="brand-light"> Arena</span></strong><small>MANAGEMENT SUITE</small></span></div>
       <div className="login-story-content"><p className="eyebrow">Your business, connected</p><h2>Every operation.<br /><span>One clear view.</span></h2><p>A considered workspace for the people, services and experiences that make KVK Arena.</p><div className="login-module-grid">{modules.map(module => <div key={module.path}><module.icon size={17} style={{ color: module.color }} /><span>{module.label}</span></div>)}</div></div>

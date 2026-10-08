@@ -1,3 +1,6 @@
+import { notify } from "@/lib/notifications";
+import { notifyValidation } from "@/lib/notifications";
+import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -69,11 +72,11 @@ export default function GamingSettings() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategoryId, setActiveCategoryId] = useState("");
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
-  const [categoriesError, setCategoriesError] = useState("");
+  const [categoriesError, setCategoriesError] = useFeedbackState<string>("", "error");
 
   const [stations, setStations] = useState<Station[]>([]);
   const [isLoadingStations, setIsLoadingStations] = useState(false);
-  const [stationsError, setStationsError] = useState("");
+  const [stationsError, setStationsError] = useFeedbackState<string>("", "error");
 
   const [stationFormModal, setStationFormModal] = useState<
     { mode: "create" | "edit"; station?: Station } | null
@@ -81,21 +84,21 @@ export default function GamingSettings() {
   const [stationForm, setStationForm] = useState<StationForm>(emptyStationForm);
   const [stationFormErrors, setStationFormErrors] = useState<Partial<Record<keyof StationForm, string>>>({});
   const [isSavingStation, setIsSavingStation] = useState(false);
-  const [stationSaveError, setStationSaveError] = useState("");
+  const [stationSaveError, setStationSaveError] = useFeedbackState<string>("", "error");
 
   const [stationConfirmTarget, setStationConfirmTarget] = useState<
     { type: "activate" | "deactivate"; station: Station } | null
   >(null);
   const [busyStationId, setBusyStationId] = useState<string | null>(null);
-  const [stationActionError, setStationActionError] = useState("");
+  const [stationActionError, setStationActionError] = useFeedbackState<string>("", "error");
 
   const [slotConfigId, setSlotConfigId] = useState<string | null>(null);
   const [slotForm, setSlotForm] = useState<SlotConfigForm>(defaultSlotConfigForm);
   const [slotFormErrors, setSlotFormErrors] = useState<Partial<Record<keyof SlotConfigForm, string>>>({});
   const [isLoadingSlotConfig, setIsLoadingSlotConfig] = useState(false);
   const [isSavingSlotConfig, setIsSavingSlotConfig] = useState(false);
-  const [slotConfigError, setSlotConfigError] = useState("");
-  const [slotConfigSuccess, setSlotConfigSuccess] = useState("");
+  const [slotConfigError, setSlotConfigError] = useFeedbackState<string>("", "error");
+  const [slotConfigSuccess, setSlotConfigSuccess] = useFeedbackState<string>("", "success");
 
   useEffect(() => {
     loadCategories();
@@ -192,7 +195,10 @@ export default function GamingSettings() {
         setSlotConfigId(null);
         setSlotForm(defaultSlotConfigForm);
       }
-    } catch {
+    } catch (error) {
+      if ((error as { response?: { status?: number } })?.response?.status !== 404) {
+        setSlotConfigError("Failed to load slot configuration. Please try again.");
+      }
       setSlotConfigId(null);
       setSlotForm(defaultSlotConfigForm);
     } finally {
@@ -228,6 +234,7 @@ export default function GamingSettings() {
     if (!stationForm.stationCode.trim()) errors.stationCode = "Station code is required.";
     if (!stationForm.name.trim()) errors.name = "Name is required.";
     setStationFormErrors(errors);
+    notifyValidation(errors);
     return Object.keys(errors).length === 0;
   };
 
@@ -255,6 +262,7 @@ export default function GamingSettings() {
         });
       }
 
+      notify.success(`Station ${stationFormModal.mode === "create" ? "created" : "updated"} successfully.`);
       await loadStations(activeCategoryId);
       setStationFormModal(null);
     } catch (err: any) {
@@ -278,6 +286,7 @@ export default function GamingSettings() {
       } else {
         await activateGamingStation(stationConfirmTarget.station.id);
       }
+      notify.success(`Station ${stationConfirmTarget.type === "deactivate" ? "deactivated" : "activated"} successfully.`);
       await loadStations(activeCategoryId);
     } catch {
       setStationActionError(
@@ -315,6 +324,7 @@ export default function GamingSettings() {
     }
 
     setSlotFormErrors(errors);
+    notifyValidation(errors);
     return Object.keys(errors).length === 0;
   };
 
