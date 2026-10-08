@@ -51,10 +51,17 @@ export default function GymPayments() {
 
   useEffect(() => {
     loadPayments();
+    const refresh = () => { if (!document.hidden) void loadPayments(true); };
+    const interval = window.setInterval(refresh, 30000);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+    };
   }, [selectedDate]);
 
-  const loadPayments = async () => {
-    setIsLoadingPayments(true);
+  const loadPayments = async (background = false) => {
+    if (!background) setIsLoadingPayments(true);
     setPaymentsError("");
 
     const from = selectedDate;
@@ -94,10 +101,12 @@ export default function GymPayments() {
 
       setPayments(mappedPayments);
     } catch {
-      setPayments([]);
-      setPaymentsError("Failed to load payments for the selected date.");
+      if (!background) {
+        setPayments([]);
+        setPaymentsError("Failed to load payments for the selected date.");
+      }
     } finally {
-      setIsLoadingPayments(false);
+      if (!background) setIsLoadingPayments(false);
     }
   };
 

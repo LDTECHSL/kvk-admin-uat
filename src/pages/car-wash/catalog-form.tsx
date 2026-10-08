@@ -63,8 +63,8 @@ export default function CatalogFormModal({
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
       onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
       <form onSubmit={onSubmit} noValidate role="dialog" aria-modal="true" aria-labelledby={titleId}
-        className="flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
-        <div className="flex items-start justify-between border-b border-slate-200 px-5 py-4 sm:px-6">
+        className="flex max-h-[calc(100dvh-2rem)] min-h-0 w-full max-w-5xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
+        <div className="flex shrink-0 items-start justify-between border-b border-slate-200 px-5 py-4 sm:px-6">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-900 text-white">{editing ? <Pencil size={20} /> : <Plus size={21} />}</div>
             <div><h2 id={titleId} className="text-xl font-bold text-slate-900">{editing ? "Edit" : "Add"} Car Wash {singular}</h2>
@@ -72,7 +72,8 @@ export default function CatalogFormModal({
           </div>
           <button type="button" aria-label="Close form" onClick={onClose} disabled={busy} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"><X size={20} /></button>
         </div>
-        <fieldset disabled={busy} className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5 sm:px-6">
+        <fieldset disabled={busy} className="min-w-0">
           {error && <p role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
           <p className="mb-4 text-xs text-slate-500">Fields marked <span className="text-red-500">*</span> are required.</p>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
@@ -141,7 +142,8 @@ export default function CatalogFormModal({
             </div>
           </div>
         </fieldset>
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+        </div>
+        <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
           <button type="button" onClick={onClose} disabled={busy} className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 disabled:opacity-50">Cancel</button>
           <button type="submit" disabled={busy} className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-900 px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">{busy ? <Loader2 size={17} className="animate-spin" /> : editing ? <Check size={17} /> : <Plus size={17} />}{busy ? "Saving" : editing ? "Save Changes" : `Add ${singular}`}</button>
         </div>

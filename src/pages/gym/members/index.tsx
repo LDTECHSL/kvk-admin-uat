@@ -62,10 +62,17 @@ export default function GymMembers() {
 
   useEffect(() => {
     loadMembers();
+    const refresh = () => { if (!document.hidden) void loadMembers(true); };
+    const interval = window.setInterval(refresh, 30000);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+    };
   }, []);
 
-  const loadMembers = async () => {
-    setIsLoading(true);
+  const loadMembers = async (background = false) => {
+    if (!background) setIsLoading(true);
     setError("");
 
     try {
@@ -104,11 +111,14 @@ export default function GymMembers() {
         : [];
 
       setMembers(mapped);
+      setViewMember((current: any) => current ? mapped.find((member) => member.id === current.id) ?? current : null);
     } catch {
-      setMembers([]);
-      setError("Failed to load members.");
+      if (!background) {
+        setMembers([]);
+        setError("Failed to load members.");
+      }
     } finally {
-      setIsLoading(false);
+      if (!background) setIsLoading(false);
     }
   };
 

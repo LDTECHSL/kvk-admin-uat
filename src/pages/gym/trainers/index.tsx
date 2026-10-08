@@ -62,10 +62,17 @@ export default function GymTrainers() {
 
   useEffect(() => {
     loadTrainers();
+    const refresh = () => { if (!document.hidden) void loadTrainers(true); };
+    const interval = window.setInterval(refresh, 30000);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+    };
   }, []);
 
-  const loadTrainers = async () => {
-    setIsLoading(true);
+  const loadTrainers = async (background = false) => {
+    if (!background) setIsLoading(true);
     setError("");
 
     try {
@@ -101,11 +108,14 @@ export default function GymTrainers() {
         : [];
 
       setTrainers(mapped);
+      setViewTrainer((current: any) => current ? mapped.find((trainer) => trainer.id === current.id) ?? current : null);
     } catch {
-      setTrainers([]);
-      setError("Failed to load trainers.");
+      if (!background) {
+        setTrainers([]);
+        setError("Failed to load trainers.");
+      }
     } finally {
-      setIsLoading(false);
+      if (!background) setIsLoading(false);
     }
   };
 
