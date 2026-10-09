@@ -1,7 +1,7 @@
 import { useFeedbackState } from "@/lib/use-feedback-state";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
-import { Check, ImagePlus, Loader2, Pencil, Plus, Search, Trash2, UploadCloud, X } from "lucide-react";
+import { Check, ImagePlus, Loader2, Pencil, Plus, Search, UploadCloud, X } from "lucide-react";
 import { validateImage, type CatalogForm, type FormErrors } from "./catalog-form-model";
 
 type ServiceOption = { id: string; title: string; price: number; isActive: boolean };
@@ -69,7 +69,7 @@ export default function CatalogFormModal({
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-900 text-white">{editing ? <Pencil size={20} /> : <Plus size={21} />}</div>
             <div><h2 id={titleId} className="text-xl font-bold text-slate-900">{editing ? "Edit" : "Add"} Car Wash {singular}</h2>
-              <p className="text-sm text-slate-500">{isPackage ? "Add package details, pricing and included services." : "Add service information, features and one image."}</p></div>
+              <p className="text-sm text-slate-500">{isPackage ? "Add package details, pricing and included services." : "Add service information and one image."}</p></div>
           </div>
           <button type="button" aria-label="Close form" onClick={onClose} disabled={busy} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"><X size={20} /></button>
         </div>
@@ -109,14 +109,7 @@ export default function CatalogFormModal({
                     </div>
                   </div><ErrorText>{errors.serviceIds}</ErrorText>
                 </div>
-              </> : <div>
-                <div className="mb-3 flex items-center justify-between gap-3"><div><p className="text-sm font-semibold text-slate-700">Features <span className="text-red-500">*</span></p><p className="mt-1 text-xs text-slate-500">Add between 1 and 5 service features.</p></div>
-                  <button type="button" disabled={form.features.length >= 5} onClick={() => update("features", [...form.features, ""])} className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-900 disabled:opacity-40"><Plus size={14} />Add Feature</button></div>
-                <div className="space-y-2.5">{form.features.map((feature, index) => <div key={index} className="flex items-center gap-2">
-                  <input aria-label={`Feature ${index + 1}`} maxLength={100} value={feature} placeholder={`Enter feature ${index + 1}`} onChange={(event) => update("features", form.features.map((value, i) => i === index ? event.target.value : value))} className={inputClass} />
-                  <button type="button" aria-label={`Remove feature ${index + 1}`} disabled={form.features.length <= 1} onClick={() => update("features", form.features.filter((_, i) => i !== index))} className="mt-1.5 rounded-xl border border-red-200 p-3 text-red-600 disabled:opacity-30"><Trash2 size={17} /></button>
-                </div>)}</div><ErrorText>{errors.features}</ErrorText>
-              </div>}
+              </> : null}
             </div>
             <div className="space-y-5">
               <div><p className="mb-1.5 text-sm font-semibold text-slate-700">{singular} Image {!editing && <span className="text-red-500">*</span>}</p>

@@ -3,7 +3,6 @@ export type CatalogForm = {
   description: string;
   price: string;
   pricesWithoutDiscounts: string;
-  features: string[];
   isActive: boolean;
   serviceIds: string[];
 };
@@ -35,9 +34,6 @@ export const validateCatalogForm = (
     if (!form.serviceIds.length) errors.serviceIds = "Select at least one service.";
     if (regularTotal <= 0) errors.pricesWithoutDiscounts = "Select services with a regular total greater than zero.";
     if (Number(form.price) > regularTotal) errors.price = "Package price cannot exceed the regular total price.";
-  } else {
-    const features = form.features.map((feature) => feature.trim()).filter(Boolean);
-    if (!features.length || features.length > 5) errors.features = "Add between 1 and 5 service features.";
   }
   if (requiresImage && !hasImage) errors.image = "An image is required when creating a new item.";
   return errors;

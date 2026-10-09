@@ -11,13 +11,13 @@ import {
 } from "@/services/car-wash-api";
 
 type Item = {
-  id: string; title: string; description: string; price: number; features: string;
+  id: string; title: string; description: string; price: number;
   basPrice: number; pricesWithoutDiscounts: number; isActive: boolean;
   image: string | null; services: Item[];
 };
 const emptyForm: CatalogForm = {
   title: "", description: "", price: "", pricesWithoutDiscounts: "0",
-  features: [""], isActive: true, serviceIds: [],
+  isActive: true, serviceIds: [],
 };
 const rowsFrom = (data: any): any[] => {
   const rows = data?.additionalData?.response ?? data?.response ?? data;
@@ -25,7 +25,7 @@ const rowsFrom = (data: any): any[] => {
 };
 const mapItem = (row: any): Item => ({
   id: row.id, title: row.title ?? "", description: row.description ?? "",
-  price: Number(row.price ?? 0), features: row.features ?? "",
+  price: Number(row.price ?? 0),
   basPrice: Number(row.basPrice ?? 0), pricesWithoutDiscounts: Number(row.pricesWithoutDiscounts ?? 0),
   isActive: row.isActive ?? true, image: row.image || null,
   services: Array.isArray(row.services) ? row.services.map(mapItem) : [],
@@ -34,8 +34,6 @@ const formFrom = (item: Item, isPackage: boolean): CatalogForm => ({
   title: item.title, description: item.description,
   price: String(isPackage ? item.basPrice : item.price),
   pricesWithoutDiscounts: String(item.pricesWithoutDiscounts),
-  features: item.features.split(",").map((feature) => feature.trim()).filter(Boolean).length
-    ? item.features.split(",").map((feature) => feature.trim()).filter(Boolean) : [""],
   isActive: item.isActive, serviceIds: item.services.map((service) => service.id),
 });
 const messageFrom = (error: any) => {
@@ -100,7 +98,7 @@ export default function CarWashCatalog({ kind }: { kind: "services" | "packages"
     if (isPackage) {
       payload.append("PricesWithoutDiscounts", String(Number(values.pricesWithoutDiscounts)));
       values.serviceIds.forEach((id) => payload.append("ServiceIds", id));
-    } else { payload.append("Features", values.features.map((feature) => feature.trim()).filter(Boolean).join(",")); }
+    }
     if (file) payload.append("Image", file);
     requireSuccess(isPackage
       ? await (item ? updateCarWashPackage(payload) : createCarWashPackage(payload))
@@ -147,7 +145,7 @@ export default function CarWashCatalog({ kind }: { kind: "services" | "packages"
   };
   const filtered = items.filter((item) => {
     if (status !== "all" && item.isActive !== (status === "active")) return false;
-    return [item.title, item.description, item.features, ...item.services.map((service) => service.title)]
+    return [item.title, item.description, ...item.services.map((service) => service.title)]
       .join(" ").toLowerCase().includes(search.trim().toLowerCase());
   });
 
@@ -173,7 +171,6 @@ export default function CarWashCatalog({ kind }: { kind: "services" | "packages"
             <p className="mt-1 text-xl font-bold text-blue-900">{formatLkr(isPackage ? item.basPrice : item.price)}</p>
             {isPackage && item.pricesWithoutDiscounts > item.basPrice && <p className="text-sm text-gray-400 line-through">{formatLkr(item.pricesWithoutDiscounts)}</p>}
             <p className="mt-3 text-sm text-gray-600">{item.description}</p>
-            {!isPackage && item.features && <p className="mt-2 text-sm text-gray-500">{item.features}</p>}
             {isPackage && <div className="mt-3 space-y-1 border-t border-gray-100 pt-3"><p className="text-xs font-semibold text-gray-500">Included services</p>{item.services.map((service) => <div key={service.id} className="flex justify-between gap-2 text-sm text-gray-600"><span>{service.title}{!service.isActive && " (Inactive)"}</span><span>{formatLkr(service.price)}</span></div>)}</div>}
             <div className="mt-auto flex flex-wrap justify-end gap-2 pt-4">
               <button type="button" disabled={busy} onClick={() => openForm(item)} className="action-secondary inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm disabled:opacity-50"><Pencil size={14} />Edit</button>
