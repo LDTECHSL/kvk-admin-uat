@@ -204,7 +204,7 @@ export default function SalonSettings() {
                   className="field-control h-11 w-full max-w-[220px] rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
                 <p className="mt-1.5 text-xs text-gray-500">
-                  How far apart bookable start times are, e.g. 15 minutes.
+                  Spacing between bookable start times and the minimum gap between bookings on the same seat, e.g. 15 minutes.
                 </p>
               </div>
 
