@@ -17,7 +17,7 @@ export const modules: NavModule[] = [
   { label: 'Badminton', path: '/badminton', icon: Trophy, color: '#c5abff', links: [...core('badminton'), link('badminton', 'courts', 'Courts', Trophy)] },
   { label: 'Gaming', path: '/gaming', icon: Gamepad2, color: '#7ed5b7', links: [...core('gaming'), link('gaming', 'games', 'Games', Gamepad2), link('gaming', 'settings', 'Station settings', Settings)] },
   { label: 'Cafe', path: '/cafe', icon: Coffee, color: '#efbd83', links: [...core('cafe'), link('cafe', 'menu', 'Menu', UtensilsCrossed)] },
-  { label: 'Salon', path: '/salon', icon: Scissors, color: '#f2a9c2', links: [...core('salon'), link('salon', 'services', 'Services', Scissors), link('salon', 'settings', 'Business hours', CalendarDays)] },
+  { label: 'Salon', path: '/salon', icon: Scissors, color: '#f2a9c2', links: [...core('salon'), link('salon', 'services', 'Services', Scissors), link('salon', 'staff', 'Staff', Users), link('salon', 'settings', 'Business hours', CalendarDays)] },
 ];
 export const settingsLink: NavLink = { label: 'Account settings', path: '/main/settings', icon: Settings };
 export const searchableLinks = [...workspaceLinks.map(item => ({ ...item, group: 'Workspace' })), ...modules.flatMap(module => module.links.map(item => ({ ...item, group: module.label }))), { ...settingsLink, group: 'Workspace' }];
