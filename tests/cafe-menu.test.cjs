@@ -51,5 +51,7 @@ test('new images are submitted and invalid categories are rejected', () => {
   const image = new File(['image'], 'coffee.png', { type: 'image/png' });
   const payload = buildMenuPayload({ ...meal, category: 4 }, undefined, image);
   assert.equal(payload.get('Image').name, 'coffee.png');
-  assert.ok(validateMenuForm({ ...meal, category: 99 }, true).category);
+  for (const category of [2, 3, 5, 99]) {
+    assert.ok(validateMenuForm({ ...meal, category }, true).category);
+  }
 });

@@ -15,7 +15,8 @@ import {
   Sparkles,
   Plus,
   Pencil,
-  Power,
+  Utensils,
+  RefreshCw,
   Trash2,
 } from "lucide-react";
 import { getCafeMenu, createCafeMenuItem, updateCafeMenuItem, deleteCafeMenuItem } from "@/services/cafe-api";
@@ -76,7 +77,7 @@ const requireSuccess = (data: any) => {
 
 export default function CafeMenu() {
   const [items, setItems] = useState<MenuItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useFeedbackState<string>("", "error");
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -122,7 +123,7 @@ export default function CafeMenu() {
           }))
         : [];
 
-      setItems(mapped);
+      setItems(mapped.filter((item) => item.category === 1 || item.category === 4));
     } catch {
       setItems([]);
       setError("Failed to load the menu.");
@@ -150,16 +151,6 @@ export default function CafeMenu() {
       setModal(null); setNotice(`Menu item ${modal.item ? "updated" : "created"}.`);
       await loadMenu();
     } catch (err) { setFormError(errorMessage(err)); }
-    finally { setBusy(false); }
-  };
-  const toggleStatus = async (item: MenuItem) => {
-    if (busy) return;
-    setBusy(true); setNotice("");
-    try {
-      requireSuccess(await updateCafeMenuItem(buildMenuPayload({ ...formFrom(item), isActive: !item.isActive }, item.id)));
-      setNotice(`${item.name} ${item.isActive ? "deactivated" : "activated"}.`);
-      await loadMenu();
-    } catch (err) { setError(errorMessage(err)); }
     finally { setBusy(false); }
   };
   const remove = async () => {
@@ -194,179 +185,49 @@ export default function CafeMenu() {
   };
 
   return (
-    <div className="page-container">
-      <div className="space-y-4">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="page-heading">Menu</h1>
-            <p className="text-sm text-gray-500 mt-1">Create and manage café menu items</p>
-          </div>
-
-          <button type="button" disabled={busy} onClick={() => openForm()} className="action-primary inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm disabled:opacity-50 sm:w-auto"><Plus size={16} />Add Menu Item</button>
+    <div className="page-container space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-700"><Utensils size={24} /></span>
+          <div><h1 className="page-heading">Menu</h1><p className="mt-1 text-sm text-slate-500">Manage caf? items, pricing and availability.</p></div>
         </div>
-
-        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm">
-          <div className="w-full sm:min-w-64 sm:flex-1">
-            <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-md px-3 py-2 text-sm shadow-sm transition-all duration-300 hover:shadow-md hover:border-gray-300">
-              <Search size={16} className="text-gray-400" />
-              <input
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                className="field-control w-full outline-none text-sm"
-                placeholder="Search by name, description, or ingredients..."
-              />
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs font-medium uppercase tracking-wide text-gray-500">
-              Category
-            </label>
-            <select
-              value={categoryFilter}
-              onChange={(event) => setCategoryFilter(event.target.value)}
-              className="field-control rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-700"
-            >
-              <option value="all">All</option>
-              {CATEGORY_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <label className="text-xs font-medium uppercase tracking-wide text-gray-500">
-              Status
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value)}
-              className="field-control rounded-md border border-gray-200 px-2 py-1.5 text-sm text-gray-700"
-            >
-              <option value="all">All</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-
-          {hasActiveFilters && (
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="cursor-pointer text-sm font-medium text-blue-700 hover:underline"
-            >
-              Clear filters
-            </button>
-          )}
+        <div className="flex items-center gap-3">
+          <button type="button" disabled={busy} onClick={() => window.location.reload()} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50"><RefreshCw size={18} />Refresh</button>
+          <button type="button" disabled={busy} onClick={() => openForm()} className="action-primary inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold disabled:opacity-50"><Plus size={18} />Add Menu Item</button>
         </div>
-
-        {notice && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">{notice}</p>}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {isLoading ? (
-            <div className="col-span-full flex items-center justify-center py-16 text-sm text-gray-500">
-              <Loader2 size={20} className="mr-2 animate-spin text-blue-700" />
-              Loading menu...
-            </div>
-          ) : error ? (
-            <div className="col-span-full rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </div>
-          ) : filteredItems.length === 0 ? (
-            <div className="col-span-full rounded-lg border border-dashed border-gray-300 bg-white px-4 py-12 text-center text-sm text-gray-500">
-              No menu items found.
-            </div>
-          ) : (
-            filteredItems.map((item) => {
-              const portion = portionSizeLabel(item.portionSize);
-
-              return (
-                <div
-                  key={item.id}
-                  className="surface-panel group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-300"
-                >
-                  <div className="relative flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-amber-50 to-gray-50">
-                    {item.image ? (
-                      <img
-                        src={`data:image/png;base64,${item.image}`}
-                        alt={item.name}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    ) : (
-                      <ImageOff size={28} className="text-gray-300" />
-                    )}
-
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/40 group-hover:opacity-100">
-                      <button
-                        type="button"
-                        onClick={() => setViewItem(item)}
-                        className="flex translate-y-2 cursor-pointer items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow-lg transition-transform duration-300 group-hover:translate-y-0 hover:bg-gray-50"
-                      >
-                        <Eye size={14} />
-                        View
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-1 flex-col p-5">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-base font-semibold text-gray-900">{item.name}</h3>
-                      <span
-                        className={`flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-                          item.isActive
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        {item.isActive ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
-                        {item.isActive ? "Active" : "Inactive"}
-                      </span>
-                    </div>
-
-                    <p className="mt-1 text-xl font-bold text-blue-900">
-                      {formatLkr(item.price)}
-                    </p>
-
-                    <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-gray-500">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
-                        {categoryLabel(item.category)}
-                      </span>
-                      {item.preparationTimeInMinutes > 0 && (
-                        <span className="flex items-center gap-1">
-                          <Clock size={14} />
-                          {item.preparationTimeInMinutes} min
-                        </span>
-                      )}
-                      {portion && (
-                        <span className="flex items-center gap-1">
-                          <Users size={14} />
-                          {portion}
-                        </span>
-                      )}
-                    </div>
-
-                    {item.description && (
-                      <p className="mt-3 text-sm text-gray-600 line-clamp-2">
-                        {item.description}
-                      </p>
-                    )}
-
-                    {item.ingredients && (
-                      <p className="mt-2 text-xs text-gray-400 line-clamp-1">
-                        Ingredients: {item.ingredients}
-                      </p>
-                    )}
-                    <div className="mt-auto flex flex-wrap justify-end gap-2 pt-4">
-                      <button type="button" disabled={busy} onClick={() => openForm(item)} className="action-secondary inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm disabled:opacity-50"><Pencil size={14} />Edit</button>
-                      <button type="button" disabled={busy} onClick={() => void toggleStatus(item)} className="action-secondary inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm disabled:opacity-50"><Power size={14} />{item.isActive ? "Deactivate" : "Activate"}</button>
-                      <button type="button" disabled={busy} onClick={() => { setDeleteTarget(item); setDeleteError(""); setNotice(""); }} className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-2 py-2 text-sm text-red-700 disabled:opacity-50"><Trash2 size={14} />Delete</button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          )}
+      </div>
+      {notice && <p role="status" className="rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700">{notice}</p>}
+      <div className="surface-panel overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 p-5">
+          <div className="relative w-full sm:min-w-64 sm:flex-1"><Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" /><input aria-label="Search menu" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search items or ingredients..." className="field-control h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" /></div>
+          <select aria-label="Filter by category" value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)} className="field-control h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-600"><option value="all">All categories</option>{CATEGORY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>
+          <select aria-label="Filter by status" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="field-control h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-600"><option value="all">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
+          {hasActiveFilters && <button type="button" onClick={clearFilters} className="h-11 rounded-xl px-3 text-sm font-semibold text-blue-700 transition hover:bg-blue-50">Clear filters</button>}
         </div>
+        {error && <p role="alert" className="m-5 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+        <div className="overflow-x-auto" aria-busy={isLoading}>
+          <table className="w-full min-w-[880px] text-left text-sm">
+            <caption className="sr-only">Caf? menu catalog</caption>
+            <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500"><tr><th scope="col" className="px-6 py-4">Menu item</th><th scope="col" className="px-6 py-4">Category</th><th scope="col" className="px-6 py-4 text-right">Price</th><th scope="col" className="px-6 py-4">Preparation</th><th scope="col" className="px-6 py-4">Status</th><th scope="col" className="px-6 py-4 text-right">Actions</th></tr></thead>
+            <tbody className="divide-y divide-slate-100">
+              {isLoading ? <tr><td colSpan={6} className="px-6 py-16 text-center text-slate-500"><Loader2 size={20} className="mr-2 inline animate-spin text-blue-700" />Loading menu...</td></tr>
+                : !filteredItems.length ? <tr><td colSpan={6} className="px-6 py-16 text-center text-slate-500">{error ? "Menu could not be loaded. Try refreshing." : "No menu items found."}</td></tr>
+                : filteredItems.map((item) => <tr key={item.id} className="transition hover:bg-blue-50/30">
+                  <td className="px-6 py-4"><div className="flex items-center gap-3"><div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-50">{item.image ? <img src={`data:image/png;base64,${item.image}`} alt="" className="h-full w-full object-cover" /> : <ImageOff size={20} className="text-slate-400" />}</div><div className="min-w-0"><p className="font-semibold text-slate-900">{item.name}</p><p className="mt-1 max-w-xs truncate text-xs text-slate-500" title={item.description}>{item.description || "No description"}</p></div></div></td>
+                  <td className="px-6 py-4"><span className="inline-flex whitespace-nowrap rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">{categoryLabel(item.category)}</span></td>
+                  <td className="whitespace-nowrap px-6 py-4 text-right font-semibold tabular-nums text-slate-900">{formatLkr(item.price)}</td>
+                  <td className="px-6 py-4"><div className="space-y-1 text-xs text-slate-500">{item.preparationTimeInMinutes > 0 ? <p className="flex items-center gap-1.5 whitespace-nowrap"><Clock size={14} />{item.preparationTimeInMinutes} min</p> : <p>?</p>}{portionSizeLabel(item.portionSize) && <p className="flex items-center gap-1.5"><Users size={14} />{portionSizeLabel(item.portionSize)}</p>}</div></td>
+                  <td className="px-6 py-4"><span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${item.isActive ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}><span className={`h-1.5 w-1.5 rounded-full ${item.isActive ? "bg-emerald-500" : "bg-slate-400"}`} />{item.isActive ? "Active" : "Inactive"}</span></td>
+                  <td className="px-6 py-4"><div className="flex justify-end gap-2">
+                    <button type="button" title="View item" aria-label={`View ${item.name}`} onClick={() => setViewItem(item)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:bg-slate-50"><Eye size={16} /></button>
+                    <button type="button" title="Edit item" aria-label={`Edit ${item.name}`} disabled={busy} onClick={() => openForm(item)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:opacity-50"><Pencil size={16} /></button>
+                    <button type="button" title="Delete item" aria-label={`Delete ${item.name}`} disabled={busy} onClick={() => { setDeleteTarget(item); setDeleteError(""); setNotice(""); }} className="flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-red-600 transition hover:bg-red-50 disabled:opacity-50"><Trash2 size={16} /></button>
+                  </div></td>
+                </tr>)}
+            </tbody>
+          </table>
+        </div>
+        <div className="border-t border-slate-200 px-6 py-4 text-xs text-slate-500">{isLoading ? "Loading catalog" : `${filteredItems.length} ${filteredItems.length === 1 ? "menu item" : "menu items"} ? ${items.length} total`}</div>
       </div>
 
       {modal && <MenuFormModal form={form} errors={fieldErrors} error={formError} image={image}
@@ -378,8 +239,8 @@ export default function CafeMenu() {
         <div role="dialog" aria-modal="true" aria-labelledby="cafe-delete-title" className="w-full max-w-sm space-y-4 rounded-2xl bg-white p-6 shadow-xl">
           <h2 id="cafe-delete-title" className="text-lg font-semibold">Delete Menu Item</h2><p className="text-sm text-gray-600">Permanently delete “{deleteTarget.name}”? This cannot be undone.</p>
           {deleteError && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{deleteError}</p>}
-          <div className="flex justify-end gap-3"><button type="button" disabled={busy} onClick={() => setDeleteTarget(null)} className="action-secondary rounded-lg px-4 py-2 text-sm">Cancel</button>
-            <button type="button" disabled={busy} onClick={() => void remove()} className="inline-flex items-center gap-2 rounded-lg bg-red-700 px-4 py-2 text-sm text-white disabled:opacity-50">{busy && <Loader2 size={16} className="animate-spin" />}Delete</button></div>
+          <div className="flex justify-end gap-3"><button type="button" disabled={busy} onClick={() => setDeleteTarget(null)} className="action-secondary h-11 rounded-xl px-4 text-sm">Cancel</button>
+            <button type="button" disabled={busy} onClick={() => void remove()} className="inline-flex items-center gap-2 h-11 rounded-xl bg-red-700 px-4 text-sm text-white disabled:opacity-50">{busy && <Loader2 size={16} className="animate-spin" />}Delete</button></div>
         </div>
       </div>, document.body)}
       {viewItem &&
@@ -477,7 +338,7 @@ export default function CafeMenu() {
                 <button
                   type="button"
                   onClick={() => setViewItem(null)}
-                  className="cursor-pointer rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                  className="cursor-pointer h-11 rounded-xl border border-gray-200 px-4 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                 >
                   Close
                 </button>

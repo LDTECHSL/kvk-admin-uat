@@ -12,12 +12,9 @@ export type MenuForm = {
 export type MenuErrors = Partial<Record<keyof MenuForm | "image", string>>;
 export const CATEGORY_OPTIONS = [
   { value: "1", label: "Breakfast" },
-  { value: "2", label: "Lunch" },
-  { value: "3", label: "Dinner" },
   { value: "4", label: "Coffee" },
-  { value: "5", label: "Hot Drinks" },
 ];
-export const isDrink = (category: number) => category === 4 || category === 5;
+export const isDrink = (category: number) => category === 4;
 export const emptyMenuForm: MenuForm = {
   name: "", price: "", category: 1, description: "", facts: "", ingredients: [],
   preparationTimeInMinutes: "", portionSize: "", isActive: true,
