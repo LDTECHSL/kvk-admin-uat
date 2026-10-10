@@ -13,8 +13,8 @@ import {
   ImageOff,
   Upload,
   AlertTriangle,
-  CheckCircle2,
-  XCircle,
+  Scissors,
+  RefreshCw,
   Clock,
 } from "lucide-react";
 import {
@@ -256,134 +256,42 @@ export default function SalonServices() {
   };
 
   return (
-    <div className="page-container">
-      <div className="space-y-4">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="page-heading">Services</h1>
-            <p className="text-sm text-gray-500 mt-1">Manage the salon's service catalog</p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex min-w-[220px] items-center gap-2 bg-white border border-gray-200 rounded-md px-3 py-2 text-sm shadow-sm transition-all duration-300 hover:shadow-md hover:border-gray-300">
-              <Search size={16} className="text-gray-400" />
-              <input
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                className="field-control w-full outline-none text-sm"
-                placeholder="Search by name or description..."
-              />
-            </div>
-
-            <select
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value)}
-              className="field-control rounded-md border border-gray-200 px-2 py-2 text-sm text-gray-700"
-            >
-              <option value="all">All</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-
-            <button
-              type="button"
-              onClick={openCreateModal}
-              className="action-primary flex items-center gap-2 px-3 py-2.5 bg-blue-700 text-white rounded cursor-pointer transition-all duration-300 text-sm hover:shadow-lg hover:bg-blue-800"
-            >
-              <Plus size={16} />
-              New Service
-            </button>
-          </div>
+    <div className="page-container space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-900"><Scissors size={24} /></span>
+          <div><h1 className="page-heading">Services</h1><p className="mt-1 text-sm text-slate-500">Manage the salon's service catalog.</p></div>
         </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {isLoading ? (
-            <div className="col-span-full flex items-center justify-center py-16 text-sm text-gray-500">
-              <Loader2 size={20} className="mr-2 animate-spin text-blue-700" />
-              Loading services...
-            </div>
-          ) : error ? (
-            <div className="col-span-full rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </div>
-          ) : filteredServices.length === 0 ? (
-            <div className="col-span-full rounded-lg border border-dashed border-gray-300 bg-white px-4 py-12 text-center text-sm text-gray-500">
-              No services found.
-            </div>
-          ) : (
-            filteredServices.map((service) => (
-              <div
-                key={service.id}
-                className="surface-panel group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-gray-300"
-              >
-                <div className="flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-violet-50 to-gray-50">
-                  {service.image ? (
-                    <img
-                      src={`data:image/jpeg;base64,${service.image}`}
-                      alt={service.name}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <ImageOff size={28} className="text-gray-300" />
-                  )}
-                </div>
-
-                <div className="flex flex-1 flex-col p-5">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-base font-semibold text-gray-900">{service.name}</h3>
-                    <span
-                      className={`flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-                        service.isActive
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-gray-100 text-gray-600"
-                      }`}
-                    >
-                      {service.isActive ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
-                      {service.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </div>
-
-                  <p className="mt-1 text-xl font-bold text-blue-900">
-                    {formatLkr(service.price)}
-                  </p>
-
-                  <div className="mt-2 flex items-center gap-1.5 text-sm text-gray-500">
-                    <Clock size={14} />
-                    {service.durationMinutes} min
-                  </div>
-
-                  {service.description && (
-                    <p className="mt-3 text-sm text-gray-600 line-clamp-2">
-                      {service.description}
-                    </p>
-                  )}
-
-                  <div className="mt-4 flex items-center justify-end gap-2 border-t border-gray-100 pt-3">
-                    <button
-                      type="button"
-                      title="Edit"
-                      onClick={() => openEditModal(service)}
-                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-gray-200 text-gray-600 transition hover:bg-gray-50"
-                    >
-                      <Pencil size={14} />
-                    </button>
-                    <button
-                      type="button"
-                      title="Delete"
-                      onClick={() => {
-                        setDeleteError("");
-                        setDeleteTarget(service);
-                      }}
-                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-red-200 text-red-700 transition hover:bg-red-50"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
+        <div className="flex items-center gap-3">
+          <button type="button" onClick={() => window.location.reload()} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"><RefreshCw size={18} />Refresh</button>
+          <button type="button" onClick={openCreateModal} className="action-primary inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold"><Plus size={18} />New Service</button>
         </div>
+      </div>
+      <div className="surface-panel overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-5">
+          <div className="relative w-full sm:max-w-md"><Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" /><input aria-label="Search services" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search by name or description..." className="field-control h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" /></div>
+          <select aria-label="Filter services by status" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="field-control h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-600"><option value="all">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
+        </div>
+        {error && <p role="alert" className="m-5 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+        <div className="overflow-x-auto" aria-busy={isLoading}>
+          <table className="w-full min-w-[780px] text-left text-sm">
+            <caption className="sr-only">Salon service catalog</caption>
+            <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500"><tr><th scope="col" className="px-6 py-4">Service</th><th scope="col" className="px-6 py-4">Description</th><th scope="col" className="px-6 py-4 text-right">Price</th><th scope="col" className="px-6 py-4">Duration</th><th scope="col" className="px-6 py-4">Status</th><th scope="col" className="px-6 py-4 text-right">Actions</th></tr></thead>
+            <tbody className="divide-y divide-slate-100">
+              {isLoading ? <tr><td colSpan={6} className="px-6 py-16 text-center text-slate-500"><Loader2 size={20} className="mr-2 inline animate-spin text-blue-700" />Loading services...</td></tr>
+                : !filteredServices.length ? <tr><td colSpan={6} className="px-6 py-16 text-center text-slate-500">{error ? "Services could not be loaded. Try refreshing." : "No services found."}</td></tr>
+                : filteredServices.map((service) => <tr key={service.id} className="transition hover:bg-blue-50/30">
+                  <td className="px-6 py-4"><div className="flex items-center gap-3"><div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-50">{service.image ? <img src={`data:image/jpeg;base64,${service.image}`} alt="" className="h-full w-full object-cover" /> : <ImageOff size={20} className="text-slate-400" />}</div><span className="font-semibold text-slate-900">{service.name}</span></div></td>
+                  <td className="max-w-xs px-6 py-4"><p className="line-clamp-2 leading-6 text-slate-500" title={service.description}>{service.description || "?"}</p></td>
+                  <td className="whitespace-nowrap px-6 py-4 text-right font-semibold tabular-nums text-slate-900">{formatLkr(service.price)}</td>
+                  <td className="px-6 py-4"><span className="inline-flex items-center gap-1.5 whitespace-nowrap text-slate-500"><Clock size={15} />{service.durationMinutes} min</span></td>
+                  <td className="px-6 py-4"><span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${service.isActive ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}><span className={`h-1.5 w-1.5 rounded-full ${service.isActive ? "bg-emerald-500" : "bg-slate-400"}`} />{service.isActive ? "Active" : "Inactive"}</span></td>
+                  <td className="px-6 py-4"><div className="flex justify-end gap-2"><button type="button" title="Edit service" aria-label={`Edit ${service.name}`} onClick={() => openEditModal(service)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"><Pencil size={16} /></button><button type="button" title="Delete service" aria-label={`Delete ${service.name}`} onClick={() => { setDeleteError(""); setDeleteTarget(service); }} className="flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 text-red-600 transition hover:bg-red-50"><Trash2 size={16} /></button></div></td>
+                </tr>)}
+            </tbody>
+          </table>
+        </div>
+        <div className="border-t border-slate-200 px-6 py-4 text-xs text-slate-500">{isLoading ? "Loading catalog" : `${filteredServices.length} ${filteredServices.length === 1 ? "service" : "services"} ? ${services.length} total`}</div>
       </div>
 
       {formModal &&
@@ -459,7 +367,7 @@ export default function SalonServices() {
                     onChange={(event) =>
                       setForm((current) => ({ ...current, name: event.target.value }))
                     }
-                    className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control w-full rounded-xl border border-gray-200 px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     placeholder="e.g. Classic Haircut"
                   />
                   {formErrors.name && (
@@ -477,12 +385,12 @@ export default function SalonServices() {
                       setForm((current) => ({ ...current, description: event.target.value }))
                     }
                     rows={2}
-                    className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="field-control w-full rounded-xl border border-gray-200 px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     placeholder="Optional description"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700">
                       Price (LKR)
@@ -495,7 +403,7 @@ export default function SalonServices() {
                       onChange={(event) =>
                         setForm((current) => ({ ...current, price: event.target.value }))
                       }
-                      className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="field-control w-full rounded-xl border border-gray-200 px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                       placeholder="0.00"
                     />
                     {formErrors.price && (
@@ -518,7 +426,7 @@ export default function SalonServices() {
                           durationMinutes: event.target.value,
                         }))
                       }
-                      className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                      className="field-control w-full rounded-xl border border-gray-200 px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                       placeholder="30"
                     />
                     {formErrors.durationMinutes && (
@@ -527,7 +435,7 @@ export default function SalonServices() {
                   </div>
                 </div>
 
-                <label className="flex items-center gap-2 text-sm text-gray-700">
+                <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-medium text-slate-700">
                   <input
                     type="checkbox"
                     checked={form.isActive}
@@ -545,7 +453,7 @@ export default function SalonServices() {
                   type="button"
                   disabled={isSaving}
                   onClick={closeFormModal}
-                  className="cursor-pointer rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
+                  className="cursor-pointer h-11 rounded-xl border border-gray-200 px-4 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -553,7 +461,7 @@ export default function SalonServices() {
                   type="button"
                   disabled={isSaving}
                   onClick={handleSave}
-                  className="action-primary inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-60"
+                  className="action-primary inline-flex cursor-pointer items-center gap-2 h-11 rounded-xl bg-blue-700 px-4 text-sm font-medium text-white transition hover:bg-blue-800 disabled:opacity-60"
                 >
                   {isSaving && <Loader2 size={14} className="animate-spin" />}
                   {formModal.mode === "create" ? "Create Service" : "Save Changes"}
@@ -602,7 +510,7 @@ export default function SalonServices() {
                   type="button"
                   disabled={isDeleting}
                   onClick={() => setDeleteTarget(null)}
-                  className="cursor-pointer rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
+                  className="cursor-pointer h-11 rounded-xl border border-gray-200 px-4 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -610,7 +518,7 @@ export default function SalonServices() {
                   type="button"
                   disabled={isDeleting}
                   onClick={handleDelete}
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-60"
+                  className="inline-flex cursor-pointer items-center gap-2 h-11 rounded-xl bg-red-600 px-4 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-60"
                 >
                   {isDeleting && <Loader2 size={14} className="animate-spin" />}
                   Delete
