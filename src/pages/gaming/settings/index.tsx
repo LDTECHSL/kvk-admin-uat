@@ -7,7 +7,6 @@ import {
   Plus,
   Pencil,
   Trash2,
-  RotateCcw,
   X,
   Loader2,
   CheckCircle2,
@@ -22,8 +21,7 @@ import {
   getGamingStationsByCategory,
   createGamingStation,
   updateGamingStation,
-  activateGamingStation,
-  deactivateGamingStation,
+  deleteGamingStation,
   getSlotConfigurationByCategory,
   createGamingSlotConfiguration,
   updateGamingSlotConfiguration,
@@ -46,11 +44,11 @@ type Station = {
 };
 
 type StationForm = {
-  stationCode: string;
   name: string;
+  isActive: boolean;
 };
 
-const emptyStationForm: StationForm = { stationCode: "", name: "" };
+const emptyStationForm: StationForm = { name: "", isActive: true };
 
 type SlotConfigForm = {
   startTime: string;
@@ -87,7 +85,7 @@ export default function GamingSettings() {
   const [stationSaveError, setStationSaveError] = useFeedbackState<string>("", "error");
 
   const [stationConfirmTarget, setStationConfirmTarget] = useState<
-    { type: "activate" | "deactivate"; station: Station } | null
+    { station: Station } | null
   >(null);
   const [busyStationId, setBusyStationId] = useState<string | null>(null);
   const [stationActionError, setStationActionError] = useFeedbackState<string>("", "error");
@@ -218,7 +216,7 @@ export default function GamingSettings() {
   };
 
   const openEditStationModal = (station: Station) => {
-    setStationForm({ stationCode: station.stationCode, name: station.name });
+    setStationForm({ name: station.name, isActive: station.isActive });
     setStationFormErrors({});
     setStationSaveError("");
     setStationFormModal({ mode: "edit", station });
@@ -231,7 +229,6 @@ export default function GamingSettings() {
 
   const validateStationForm = (): boolean => {
     const errors: Partial<Record<keyof StationForm, string>> = {};
-    if (!stationForm.stationCode.trim()) errors.stationCode = "Station code is required.";
     if (!stationForm.name.trim()) errors.name = "Name is required.";
     setStationFormErrors(errors);
     notifyValidation(errors);
@@ -239,27 +236,29 @@ export default function GamingSettings() {
   };
 
   const handleSaveStation = async () => {
-    if (!validateStationForm() || !stationFormModal || !activeCategoryId) return;
+    if (isSavingStation || !validateStationForm() || !stationFormModal || !activeCategoryId) return;
 
     setIsSavingStation(true);
     setStationSaveError("");
 
     try {
       if (stationFormModal.mode === "create") {
-        await createGamingStation({
+        const result = await createGamingStation({
           gamingCategoryId: activeCategoryId,
-          stationCode: stationForm.stationCode.trim(),
+          stationCode: stationForm.name.trim().toUpperCase().replace(/\s+/g, "_"),
           name: stationForm.name.trim(),
-          isActive: true,
+          isActive: stationForm.isActive,
         });
+        if (result?.succeeded === false) throw new Error(result.message || "Failed to save station.");
       } else if (stationFormModal.station) {
-        await updateGamingStation({
+        const result = await updateGamingStation({
           id: stationFormModal.station.id,
           gamingCategoryId: activeCategoryId,
-          stationCode: stationForm.stationCode.trim(),
+          stationCode: stationFormModal.station.stationCode,
           name: stationForm.name.trim(),
-          isActive: stationFormModal.station.isActive,
+          isActive: stationForm.isActive,
         });
+        if (result?.succeeded === false) throw new Error(result.message || "Failed to save station.");
       }
 
       notify.success(`Station ${stationFormModal.mode === "create" ? "created" : "updated"} successfully.`);
@@ -275,28 +274,21 @@ export default function GamingSettings() {
   };
 
   const handleConfirmStationAction = async () => {
-    if (!stationConfirmTarget || !activeCategoryId) return;
+    if (!stationConfirmTarget || !activeCategoryId || busyStationId) return;
 
     setStationActionError("");
     setBusyStationId(stationConfirmTarget.station.id);
 
     try {
-      if (stationConfirmTarget.type === "deactivate") {
-        await deactivateGamingStation(stationConfirmTarget.station.id);
-      } else {
-        await activateGamingStation(stationConfirmTarget.station.id);
-      }
-      notify.success(`Station ${stationConfirmTarget.type === "deactivate" ? "deactivated" : "activated"} successfully.`);
+      const result = await deleteGamingStation(stationConfirmTarget.station.id);
+      if (result?.succeeded === false) throw new Error(result.message || "Failed to delete station.");
+      notify.success("Station deleted successfully.");
       await loadStations(activeCategoryId);
-    } catch {
-      setStationActionError(
-        stationConfirmTarget.type === "deactivate"
-          ? "Failed to deactivate station."
-          : "Failed to activate station.",
-      );
+      setStationConfirmTarget(null);
+    } catch (err: any) {
+      setStationActionError(err?.response?.data?.message || err?.message || "Failed to delete station.");
     } finally {
       setBusyStationId(null);
-      setStationConfirmTarget(null);
     }
   };
 
@@ -502,31 +494,19 @@ export default function GamingSettings() {
                                   >
                                     <Pencil size={14} />
                                   </button>
-                                  {station.isActive ? (
-                                    <button
-                                      type="button"
-                                      title="Deactivate"
-                                      disabled={busyStationId === station.id}
-                                      onClick={() =>
-                                        setStationConfirmTarget({ type: "deactivate", station })
-                                      }
-                                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-red-200 text-red-700 transition hover:bg-red-50 disabled:opacity-50"
-                                    >
-                                      <Trash2 size={14} />
-                                    </button>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      title="Activate"
-                                      disabled={busyStationId === station.id}
-                                      onClick={() =>
-                                        setStationConfirmTarget({ type: "activate", station })
-                                      }
-                                      className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-emerald-200 text-emerald-700 transition hover:bg-emerald-50 disabled:opacity-50"
-                                    >
-                                      <RotateCcw size={14} />
-                                    </button>
-                                  )}
+                                  <button
+                                    type="button"
+                                    title="Delete"
+                                    aria-label={`Delete ${station.name}`}
+                                    disabled={busyStationId === station.id}
+                                    onClick={() => {
+                                      setStationActionError("");
+                                      setStationConfirmTarget({ station });
+                                    }}
+                                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border border-red-200 text-red-700 transition hover:bg-red-50 disabled:opacity-50"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
                                 </div>
                               </td>
                             </tr>
@@ -751,26 +731,6 @@ export default function GamingSettings() {
                 )}
 
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Station Code
-                  </label>
-                  <input
-                    value={stationForm.stationCode}
-                    onChange={(event) =>
-                      setStationForm((current) => ({
-                        ...current,
-                        stationCode: event.target.value,
-                      }))
-                    }
-                    className="field-control w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                    placeholder="e.g. PC-01"
-                  />
-                  {stationFormErrors.stationCode && (
-                    <p className="mt-1 text-xs text-red-600">{stationFormErrors.stationCode}</p>
-                  )}
-                </div>
-
-                <div>
                   <label className="mb-1 block text-sm font-medium text-gray-700">Name</label>
                   <input
                     value={stationForm.name}
@@ -783,6 +743,20 @@ export default function GamingSettings() {
                   {stationFormErrors.name && (
                     <p className="mt-1 text-xs text-red-600">{stationFormErrors.name}</p>
                   )}
+                </div>
+                <div className="flex items-center justify-between rounded-lg border border-gray-200 p-3">
+                  <span className="text-sm font-medium text-gray-700">{stationForm.isActive ? "Active" : "Inactive"}</span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-label="Station active"
+                    aria-checked={stationForm.isActive}
+                    disabled={isSavingStation}
+                    onClick={() => setStationForm((current) => ({ ...current, isActive: !current.isActive }))}
+                    className={`relative h-6 w-11 rounded-full transition disabled:opacity-50 ${stationForm.isActive ? "bg-blue-700" : "bg-gray-300"}`}
+                  >
+                    <span className={`absolute top-1 h-4 w-4 rounded-full bg-white transition ${stationForm.isActive ? "left-6" : "left-1"}`} />
+                  </button>
                 </div>
               </div>
 
@@ -825,32 +799,15 @@ export default function GamingSettings() {
           >
             <div className="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl">
               <div className="flex items-start gap-4 px-6 pt-6">
-                <div
-                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${
-                    stationConfirmTarget.type === "deactivate"
-                      ? "bg-red-50 text-red-600"
-                      : "bg-emerald-50 text-emerald-600"
-                  }`}
-                >
-                  {stationConfirmTarget.type === "deactivate" ? (
-                    <AlertTriangle size={20} />
-                  ) : (
-                    <RotateCcw size={20} />
-                  )}
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
+                  <AlertTriangle size={20} />
                 </div>
                 <div>
-                  <h2 className="text-base font-semibold text-gray-900">
-                    {stationConfirmTarget.type === "deactivate"
-                      ? "Deactivate Station"
-                      : "Activate Station"}
-                  </h2>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {stationConfirmTarget.type === "deactivate"
-                      ? "This station will no longer be bookable."
-                      : "This station will become bookable again."}
-                  </p>
+                  <h2 className="text-base font-semibold text-gray-900">Delete Station</h2>
+                  <p className="mt-1 text-sm text-gray-500">Permanently delete this station? This cannot be undone.</p>
                 </div>
               </div>
+              {stationActionError && <p role="alert" className="mx-6 mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{stationActionError}</p>}
 
               <div className="mx-6 mt-4 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm">
                 <div className="font-medium text-gray-900">{stationConfirmTarget.station.name}</div>
@@ -870,16 +827,12 @@ export default function GamingSettings() {
                   type="button"
                   disabled={busyStationId === stationConfirmTarget.station.id}
                   onClick={handleConfirmStationAction}
-                  className={`inline-flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition disabled:opacity-60 ${
-                    stationConfirmTarget.type === "deactivate"
-                      ? "bg-red-600 hover:bg-red-700"
-                      : "bg-emerald-600 hover:bg-emerald-700"
-                  }`}
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-60"
                 >
                   {busyStationId === stationConfirmTarget.station.id && (
                     <Loader2 size={14} className="animate-spin" />
                   )}
-                  {stationConfirmTarget.type === "deactivate" ? "Deactivate" : "Activate"}
+                  Delete
                 </button>
               </div>
             </div>
