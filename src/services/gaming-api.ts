@@ -73,6 +73,11 @@ export const activateGame = async (id: string) => {
 };
 
 export const deactivateGame = async (id: string) => {
+    const response = await axios.put(`${API_URL}gaming-m/games/${id}/deactivate`, null, authHeaders());
+    return response.data;
+};
+
+export const deleteGame = async (id: string) => {
     const response = await axios.delete(`${API_URL}gaming-m/games/${id}`, authHeaders());
     return response.data;
 };
